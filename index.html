@@ -2,7 +2,8 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- הגדרת viewport למניעת זום אוטומטי במובייל -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Credible Plus | ניהול לקוחות</title>
     
     <!-- External Libraries -->
@@ -14,31 +15,58 @@
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Assistant', sans-serif; background-color: #FDFDFD; }
+        body { 
+            font-family: 'Assistant', sans-serif; 
+            background-color: #FDFDFD; 
+            touch-action: manipulation;
+        }
         .gold-text { color: #d4a55f; }
         .gold-bg { background: linear-gradient(90deg, #9c7229 0%, #d4a55f 50%, #f6d19c 100%); }
-        .input-field { background-color: #ffffff; border: 1.5px solid #E5E7EB; border-radius: 12px; padding: 12px; font-size: 16px; width: 100%; outline: none; transition: all 0.2s; text-align: right; }
+        
+        /* פונט 16px חובה למניעת זום אוטומטי בדפדפני מובייל */
+        .input-field { 
+            background-color: #ffffff; 
+            border: 1.5px solid #E5E7EB; 
+            border-radius: 12px; 
+            padding: 12px; 
+            font-size: 16px; 
+            width: 100%; 
+            outline: none; 
+            transition: all 0.2s; 
+            text-align: right; 
+            appearance: none;
+        }
         .input-field:focus { border-color: #d4a55f; box-shadow: 0 0 0 3px rgba(212, 165, 95, 0.1); }
+        
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slide { animation: slideUp 0.3s ease-out; }
         * { -webkit-tap-highlight-color: transparent; }
+        .modal-overlay { background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
+
+        button, input, select {
+            touch-action: manipulation;
+        }
+
+        /* עיצוב ספציפי לשדה מאושר חלקי למניעת זום */
+        .partial-input {
+            font-size: 16px !important;
+            padding: 4px 8px;
+            background-color: #fff9f0;
+            border: 1px solid #f6d19c;
+            border-radius: 8px;
+            color: #d4a55f;
+            font-weight: 700;
+            text-align: center;
+            width: 100%;
+            outline: none;
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo, useRef } = React;
-
-        // --- Firebase Config (Placeholder) ---
-        const firebaseConfig = {
-            apiKey: "",
-            authDomain: "",
-            projectId: "",
-            storageBucket: "",
-            messagingSenderId: "",
-            appId: ""
-        };
+        const { useState, useEffect, useRef } = React;
 
         const BODIES = ['מקס', 'מימון ישיר', 'כאל', 'איגוד', 'פמה', 'פועלים', 'מזרחי', 'דיסקונט'];
         const STATUS_OPTIONS = [
@@ -100,11 +128,6 @@
                         <polygon fill="#262626" points="175.46 .49 172.65 .49 172.65 43.13 188.86 43.13 188.86 40.58 175.46 40.58 175.46 .49"/>
                         <polygon fill="#262626" points="209.88 3.05 209.88 .49 193.06 .49 193.06 43.13 209.88 43.13 209.88 40.58 195.87 40.58 195.87 22.79 207.5 22.79 207.5 20.23 195.87 20.23 195.87 3.05 209.88 3.05"/>
                     </g>
-                    <path fill="url(#logo-grad-1)" d="m224.32.49h-9.87v42.65h6.7v-16.02h3.17c6.7,0,9.99-3.72,9.99-10.54v-5.54c0-6.82-3.29-10.54-9.99-10.54Zm3.29,16.51c0,3.05-1.16,4.02-3.29,4.02h-3.17V6.58h3.17c2.13,0,3.29.97,3.29,4.02v6.4Z"/>
-                    <polygon fill="url(#logo-grad-1)" points="244.42 .49 237.72 .49 237.72 43.13 255.45 43.13 255.45 37.04 244.42 37.04 244.42 .49"/>
-                    <path fill="url(#logo-grad-1)" d="m271.71,33.39c0,3.05-1.34,4.14-3.47,4.14s-3.47-1.1-3.47-4.14V.49h-6.7v32.47c0,6.82,3.41,10.72,9.99,10.72s9.99-3.9,9.99-10.72V.49h-6.34v32.9Z"/>
-                    <path fill="url(#logo-grad-1)" d="m288.47,10.3c0-3.05,1.22-4.2,3.35-4.2s3.35,1.16,3.35,4.2v1.77h6.34v-1.34c0-6.82-3.35-10.72-9.87-10.72s-9.87,3.9-9.87,10.72c0,12.18,13.1,13.83,13.1,22.6,0,3.05-1.34,4.14-3.47,4.14s-3.47-1.1-3.47-4.14v-3.05h-6.34v2.62c0,6.82,3.41,10.72,9.99,10.72s9.99-3.9,9.99-10.72c0-12.18-13.1-13.83-13.1-22.6Z"/>
-                    <path fill="url(#logo-grad-1)" d="m32.51,38.57h-4c-.99,0-1.79-.8-1.79-1.79v-1.55c-.03-.21-.06-.42-.06-.63v-9.22h-9.22c-.14,0-.28,0-.42-.02h-1.62c-.99,0-1.79-.8-1.79-1.79v-4c0-.99.8-1.79,1.79-1.79h11.26v-9.21c0-.22.02-.42.06-.63v-1.38c0-.99.8-1.79,1.79-1.79h4c.99,0,1.79.8,1.79,1.79v11.22h9.1V6.47c0-3.57-2.9-6.47-6.47-6.47H6.74C3.17,0,.27,2.9.27,6.47v30.2c0,3.57,2.9,6.47,6.47,6.47h30.2c3.57,0,6.47-2.9,6.47-6.47v-11.28h-9.1v11.4c0,.99-.8,1.79-1.79,1.79Z"/>
                 </g>
             </svg>
         );
@@ -115,9 +138,7 @@
 
             useEffect(() => {
                 const handleClickOutside = (event) => {
-                    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                        setIsOpen(false);
-                    }
+                    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) setIsOpen(false);
                 };
                 document.addEventListener('mousedown', handleClickOutside);
                 return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -125,33 +146,14 @@
 
             return (
                 <div className="relative w-full" ref={dropdownRef}>
-                    <button
-                        type="button"
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="input-field flex justify-between items-center bg-white"
-                    >
-                        <span className={value ? 'text-[#262626] font-bold' : 'text-gray-400'}>
-                            {value || placeholder}
-                        </span>
-                        <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
+                    <button type="button" onClick={() => setIsOpen(!isOpen)} className="input-field flex justify-between items-center bg-white">
+                        <span className={value ? 'text-[#262626] font-bold' : 'text-gray-400'}>{value || placeholder}</span>
+                        <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                     </button>
-                    
                     {isOpen && (
                         <div className="absolute z-[100] mt-1 w-full bg-white border border-gray-100 rounded-xl shadow-2xl max-h-48 overflow-y-auto animate-slide">
                             {BODIES.map((body) => (
-                                <button
-                                    key={body}
-                                    type="button"
-                                    onClick={() => {
-                                        onChange(body);
-                                        setIsOpen(false);
-                                    }}
-                                    className={`w-full text-right px-4 py-3 text-sm font-bold transition-colors hover:bg-gray-50 ${value === body ? 'gold-text bg-amber-50/30' : 'text-gray-600'}`}
-                                >
-                                    {body}
-                                </button>
+                                <button key={body} type="button" onClick={() => { onChange(body); setIsOpen(false); }} className={`w-full text-right px-4 py-3 text-sm font-bold transition-colors hover:bg-gray-50 ${value === body ? 'gold-text bg-amber-50/30' : 'text-gray-600'}`}>{body}</button>
                             ))}
                         </div>
                     )}
@@ -159,12 +161,27 @@
             );
         };
 
+        const ChoiceModal = ({ title, options, onClose }) => (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 modal-overlay animate-fadeIn">
+                <div className="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl space-y-3">
+                    <h3 className="text-center font-extrabold text-[#262626] border-b pb-3 mb-4">{title}</h3>
+                    {options.map((opt, i) => (
+                        <button key={i} onClick={opt.action} className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all shadow-sm border ${opt.className || 'bg-gray-50 text-gray-700 border-gray-100'}`}>
+                            {opt.label}
+                        </button>
+                    ))}
+                    <button onClick={onClose} className="w-full py-2 text-xs font-bold text-gray-400 mt-2">ביטול</button>
+                </div>
+            </div>
+        );
+
         function App() {
             const [activeTab, setActiveTab] = useState('active');
             const [search, setSearch] = useState('');
             const [requests, setRequests] = useState([]);
             const [formData, setFormData] = useState({ client: '', agency: '', amount: '', body: '' });
             const [activeAction, setActiveAction] = useState(null);
+            const [choiceModal, setChoiceModal] = useState(null);
 
             const handleAdd = () => {
                 if (!formData.client || !formData.amount || !formData.body) return;
@@ -175,29 +192,89 @@
                     amount: parseInt(parseNumber(formData.amount)) || 0,
                     offers: [{ id: 'off-' + Date.now(), body: formData.body, status: 'הוגש', approved: 0 }],
                     archived: false,
-                    createdAt: new Date()
+                    order: requests.length
                 };
                 setRequests([newReq, ...requests]);
                 setFormData({ client: '', agency: '', amount: '', body: '' });
             };
 
+            const addAdditionalBody = (reqId) => {
+                setChoiceModal({
+                    title: 'בחר גוף נוסף להגשה',
+                    options: BODIES.map(b => ({
+                        label: b,
+                        action: () => {
+                            setRequests(prev => prev.map(r => r.id === reqId ? {
+                                ...r, 
+                                archived: false,
+                                offers: [...r.offers, { id: 'off-' + Date.now(), body: b, status: 'הוגש', approved: 0 }]
+                            } : r));
+                            setChoiceModal(null);
+                            setActiveTab('active');
+                        }
+                    }))
+                });
+            };
+
             const updateOfferStatus = (reqId, offId, newStatus) => {
+                if (newStatus === 'מאושר חלקי') {
+                    setRequests(prev => prev.map(req => req.id === reqId ? {
+                        ...req, 
+                        offers: req.offers.map(off => off.id === offId ? { ...off, status: newStatus } : off)
+                    } : req));
+                } else if (newStatus === 'לא מאושר') {
+                    setChoiceModal({
+                        title: 'הבקשה לא אושרה',
+                        options: [
+                            { label: 'להגיש בגוף מימון אחר', className: 'gold-bg text-white', action: () => { setChoiceModal(null); addAdditionalBody(reqId); } },
+                            { label: 'להשאיר פעיל', action: () => { setChoiceModal(null); applyStatus(reqId, offId, newStatus); } },
+                            { label: 'להעביר לארכיון', action: () => { setChoiceModal(null); applyStatus(reqId, offId, newStatus); setArchiveState(reqId, true); } }
+                        ]
+                    });
+                } else if (newStatus === 'תואם פגישה') {
+                    setChoiceModal({
+                        title: 'נקבעה פגישה',
+                        options: [
+                            { label: 'להשאיר פעיל', className: 'gold-bg text-white', action: () => { setChoiceModal(null); applyStatus(reqId, offId, newStatus); } },
+                            { label: 'להעביר לארכיון', action: () => { setChoiceModal(null); applyStatus(reqId, offId, newStatus); setArchiveState(reqId, true); } }
+                        ]
+                    });
+                } else {
+                    applyStatus(reqId, offId, newStatus);
+                }
+                setActiveAction(null);
+            };
+
+            const applyStatus = (reqId, offId, newStatus) => {
                 setRequests(prev => prev.map(req => {
                     if (req.id !== reqId) return req;
-                    const updatedOffers = req.offers.map(off => {
-                        if (off.id === offId) {
-                            const approvedVal = newStatus === 'מאושר מלא' ? req.amount : off.approved;
-                            return { ...off, status: newStatus, approved: approvedVal };
-                        }
-                        return off;
-                    });
-                    return { ...req, offers: updatedOffers };
+                    return {
+                        ...req,
+                        offers: req.offers.map(off => off.id === offId ? { 
+                            ...off, 
+                            status: newStatus, 
+                            approved: newStatus === 'מאושר מלא' ? req.amount : off.approved 
+                        } : off)
+                    };
                 }));
-                setActiveAction(null);
+            };
+
+            const updateApprovedAmount = (reqId, offId, val) => {
+                setRequests(prev => prev.map(req => req.id === reqId ? {
+                    ...req, offers: req.offers.map(off => off.id === offId ? { ...off, approved: parseNumber(val) } : off)
+                } : req));
             };
 
             const setArchiveState = (reqId, state) => {
                 setRequests(prev => prev.map(r => r.id === reqId ? { ...r, archived: state } : r));
+            };
+
+            const moveRequest = (index, direction) => {
+                const newArr = [...requests];
+                const target = index + direction;
+                if (target < 0 || target >= newArr.length) return;
+                [newArr[index], newArr[target]] = [newArr[target], newArr[index]];
+                setRequests(newArr);
             };
 
             const filtered = requests.filter(r => 
@@ -206,7 +283,7 @@
             );
 
             return (
-                <div className="min-h-screen flex flex-col">
+                <div className="min-h-screen flex flex-col overflow-x-hidden">
                     <header className="bg-white px-6 pt-6 pb-4 sticky top-0 z-50 border-b border-gray-100 shadow-sm">
                         <CredibleLogo />
                         <div className="flex bg-gray-100 p-1 rounded-xl mt-5 max-w-md mx-auto">
@@ -217,11 +294,7 @@
 
                     <main className="p-4 pb-24 max-w-lg mx-auto w-full">
                         <div className="mb-4">
-                            <input 
-                                type="text" placeholder="חיפוש לקוח..."
-                                className="w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-sm outline-none focus:border-[#d4a55f] text-right"
-                                value={search} onChange={(e) => setSearch(e.target.value)}
-                            />
+                            <input type="text" placeholder="חיפוש לקוח..." className="input-field py-3 px-4 text-sm" value={search} onChange={(e) => setSearch(e.target.value)} />
                         </div>
 
                         {activeTab === 'active' && !search && (
@@ -231,80 +304,81 @@
                                     <input placeholder="שם סוכנות" className="input-field" value={formData.agency} onChange={e => setFormData({...formData, agency: e.target.value})} />
                                 </div>
                                 <BodySelect value={formData.body} onChange={(val) => setFormData({...formData, body: val})} />
-                                <div className="relative">
-                                    <input 
-                                        type="tel"
-                                        inputMode="numeric"
-                                        placeholder="סכום מימון מבוקש" 
-                                        className="input-field text-center font-extrabold text-lg gold-text" 
-                                        value={formatNumber(formData.amount)} 
-                                        onChange={e => setFormData({...formData, amount: parseNumber(e.target.value)})}
-                                    />
-                                </div>
+                                <input type="tel" inputMode="numeric" placeholder="סכום מימון מבוקש" className="input-field text-center font-extrabold text-lg gold-text" value={formatNumber(formData.amount)} onChange={e => setFormData({...formData, amount: parseNumber(e.target.value)})} />
                                 <button onClick={handleAdd} disabled={!formData.client || !formData.amount || !formData.body} className="w-full gold-bg text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-40">הקם לקוח חדש</button>
                             </div>
                         )}
 
                         <div className="space-y-4">
-                            {filtered.map(req => (
-                                <div key={req.id} className="bg-white rounded-[22px] shadow-sm border border-gray-100 overflow-hidden animate-slide">
+                            {filtered.map((req, idx) => (
+                                <div key={req.id} className="bg-white rounded-[22px] shadow-sm border border-gray-100 overflow-hidden animate-slide relative">
                                     <div className="px-5 py-2.5 border-b border-gray-50 flex justify-between items-center bg-[#FAFAFA]">
-                                        <div className="text-right">
-                                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">לקוח</div>
-                                            <div className="text-lg font-extrabold text-[#262626] leading-tight">{req.client}</div>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-gray-300 font-black text-lg">#{idx + 1}</span>
+                                            <div className="text-right">
+                                                <div className="text-[10px] text-gray-400 font-bold uppercase">לקוח</div>
+                                                <div className="text-lg font-extrabold text-[#262626] leading-tight">{req.client}</div>
+                                            </div>
                                         </div>
-                                        <div className="text-left">
-                                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider text-left">סוכנות</div>
-                                            <div className="text-xs font-bold text-gray-600 bg-white px-3 py-1 rounded-full border border-gray-200">{req.agency}</div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex flex-col gap-1">
+                                                <button onClick={() => moveRequest(requests.indexOf(req), -1)} className="p-1 text-gray-300 hover:text-black"><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/></svg></button>
+                                                <button onClick={() => moveRequest(requests.indexOf(req), 1)} className="p-1 text-gray-300 hover:text-black"><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg></button>
+                                            </div>
+                                            <div className="text-left">
+                                                <div className="text-[10px] text-gray-400 font-bold uppercase">סוכנות</div>
+                                                <div className="text-xs font-bold text-gray-600 bg-white px-3 py-1 rounded-full border border-gray-200">{req.agency}</div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div className="p-4 space-y-3">
-                                        {req.offers.map((off, idx) => (
+                                        {req.offers.map((off, oIdx) => (
                                             <div key={off.id} className="bg-white border border-gray-100 rounded-xl p-3">
                                                 <div className="grid grid-cols-[20px_1fr_1fr_1fr_1.3fr] gap-2 items-center text-center">
-                                                    <span className="text-[10px] font-bold text-gray-300">{idx+1}.</span>
+                                                    <span className="text-[10px] font-bold text-gray-300">{oIdx+1}.</span>
                                                     <span className="text-[13px] font-extrabold text-right truncate">{off.body}</span>
                                                     <span className="text-[13px] font-extrabold text-gray-400">₪{formatNumber(req.amount)}</span>
-                                                    <span className="text-[12px] font-bold gold-text">₪{formatNumber(off.approved)}</span>
-                                                    <button 
-                                                        onClick={() => setActiveAction({reqId: req.id, offId: off.id})}
-                                                        className={`py-2 rounded-lg text-[10px] font-extrabold border ${STATUS_OPTIONS.find(o => o.value === off.status)?.color}`}
-                                                    >
+                                                    
+                                                    {off.status === 'מאושר חלקי' ? (
+                                                        <input 
+                                                            type="tel" inputMode="numeric" autoFocus
+                                                            className="partial-input"
+                                                            value={formatNumber(off.approved)}
+                                                            onChange={e => updateApprovedAmount(req.id, off.id, e.target.value)}
+                                                        />
+                                                    ) : (
+                                                        <span className="text-[12px] font-bold gold-text">₪{formatNumber(off.approved)}</span>
+                                                    )}
+
+                                                    <button onClick={() => setActiveAction({reqId: req.id, offId: off.id})} className={`py-2 rounded-lg text-[10px] font-extrabold border ${STATUS_OPTIONS.find(o => o.value === off.status)?.color}`}>
                                                         {off.status}
                                                     </button>
                                                 </div>
-                                                
                                                 {activeAction?.offId === off.id && (
                                                     <div className="mt-3 grid grid-cols-3 gap-1.5 pt-3 border-t border-gray-50 animate-slide">
-                                                        {STATUS_OPTIONS.map(opt => (
-                                                            <button 
-                                                                key={opt.value} 
-                                                                onClick={() => updateOfferStatus(req.id, off.id, opt.value)}
-                                                                className="text-[10px] font-bold p-2 border rounded-lg hover:bg-gray-50"
-                                                            >
-                                                                {opt.label}
-                                                            </button>
-                                                        ))}
+                                                        {STATUS_OPTIONS.map(opt => <button key={opt.value} onClick={() => updateOfferStatus(req.id, off.id, opt.value)} className="text-[10px] font-bold p-2 border rounded-lg hover:bg-gray-50">{opt.label}</button>)}
                                                     </div>
                                                 )}
                                             </div>
                                         ))}
                                         
-                                        <button 
-                                            onClick={() => setArchiveState(req.id, !req.archived)}
-                                            className="w-full py-2 text-[10px] text-gray-400 font-bold underline text-center"
-                                        >
-                                            {req.archived ? 'החזר לפעילים' : 'העבר לארכיון'}
-                                        </button>
+                                        <div className="flex gap-2 mt-4 pt-2 border-t border-gray-50">
+                                            <button onClick={() => addAdditionalBody(req.id)} className="flex-1 py-2.5 text-[11px] gold-text font-bold bg-amber-50 rounded-xl hover:bg-amber-100 transition-colors">להגיש לגוף מימון נוסף</button>
+                                            <button onClick={() => setArchiveState(req.id, !req.archived)} className="flex-1 py-2.5 text-[11px] text-gray-400 font-bold bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                                {req.archived ? 'להחזיר לפעילים' : 'להעביר לארכיון'}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </main>
 
+                    {choiceModal && <ChoiceModal {...choiceModal} onClose={() => setChoiceModal(null)} />}
+
                     <footer className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md py-3 border-t border-gray-100 text-center text-[10px] text-gray-400 font-medium z-40">
-                        <span className="gold-text font-bold">Credible Plus v1.3 - GitHub Ready</span>
+                        <span className="gold-text font-bold">Credible Plus v1.5 - App Ready</span>
                     </footer>
                 </div>
             );
