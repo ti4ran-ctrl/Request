@@ -9,24 +9,22 @@ import {
   query, 
   addDoc, 
   updateDoc, 
-  deleteDoc,
   serverTimestamp 
 } from 'firebase/firestore';
 import { 
   getAuth, 
   signInAnonymously, 
-  signInWithCustomToken, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  signInWithCustomToken
 } from 'firebase/auth';
 
-// Firebase Configuration
+/** * הגדרות FIREBASE */
 const firebaseConfig = JSON.parse(__firebase_config);
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'credible-plus-v1';
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'credible-plus-production';
 
-// Constants
 const BODIES = ['מקס', 'מימון ישיר', 'כאל', 'איגוד', 'פמה', 'פועלים', 'מזרחי', 'דיסקונט'];
 
 const STATUS_OPTIONS = [
@@ -37,7 +35,6 @@ const STATUS_OPTIONS = [
     { value: 'תואם פגישה', label: 'תואם פגישה', color: 'bg-purple-100 text-purple-700 border-purple-200' }
 ];
 
-// Helper Functions
 const formatNumber = (num) => {
     if (!num && num !== 0) return '';
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -48,7 +45,57 @@ const parseNumber = (str) => {
     return str.replace(/,/g, '');
 };
 
-// Custom Logo Component from SVG
+// קומפוננטת דרופדאון מעוצבת
+const BodySelect = ({ value, onChange, placeholder = "בחר גוף מימון" }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div className="relative w-full" ref={dropdownRef}>
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className="input-field flex justify-between items-center bg-white"
+            >
+                <span className={value ? 'text-[#262626] font-bold' : 'text-gray-400'}>
+                    {value || placeholder}
+                </span>
+                <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            
+            {isOpen && (
+                <div className="absolute z-[100] mt-1 w-full bg-white border border-gray-100 rounded-xl shadow-2xl max-h-48 overflow-y-auto animate-slide">
+                    {BODIES.map((body) => (
+                        <button
+                            key={body}
+                            type="button"
+                            onClick={() => {
+                                onChange(body);
+                                setIsOpen(false);
+                            }}
+                            className={`w-full text-right px-4 py-3 text-sm font-bold transition-colors hover:bg-gray-50 ${value === body ? 'gold-text bg-amber-50/30' : 'text-gray-600'}`}
+                        >
+                            {body}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 const CredibleLogo = () => (
     <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 301.68 65.71" className="h-10 mx-auto">
         <defs>
@@ -72,7 +119,7 @@ const CredibleLogo = () => (
                 <path fill="#262626" d="m157.53,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
                 <path fill="#262626" d="m161.05,62.89v-.61c0-.14.08-.21.21-.21h.17c3.41,0,4.82-2.83,4.82-6.14v-.52c0-.2-.08-.31-.28-.31h-5.1c-.34,0-.52-.21-.52-.55v-1.97c0-.14.08-.21.21-.21h.71c.14,0,.21.08.21.21v1.47h5.25c.37,0,.64.28.64.66v1.55c0,3.64-1.98,6.85-5.81,6.85h-.32c-.14,0-.21-.08-.21-.21Z"/>
                 <path fill="#262626" d="m170.2,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m176.45,65.5v-11.24c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v4.87h1.15c2.13,0,2.79-.86,2.79-2.32v-2.55c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v2.66c0,1.77-.91,3.26-3.62,3.26h-1.47v5.33c0,.14-.08.21-.21.21h-.72c-.14,0-.22-.08-.22-.21Z"/>
+                <path fill="#262626" d="m176.45,65.5v-1124c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v4.87h1.15c2.13,0,2.79-.86,2.79-2.32v-2.55c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v2.66c0,1.77-.91,3.26-3.62,3.26h-1.47v5.33c0,.14-.08.21-.21.21h-.72c-.14,0-.22-.08-.22-.21Z"/>
                 <path fill="#262626" d="m185.28,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
                 <path fill="#262626" d="m187.92,62.89v-.61c0-.14.08-.21.21-.21h2.13l-1.69-7.8c-.03-.14.08-.21.21-.21h.74c.14,0,.18.08.21.21l1.67,7.79c2.03-.18,2.92-1.44,2.92-3.49v-4.3c0-.14.08-.21.21-.21h.72c.14,0,.21.08.21.21v4.75c0,2.4-1.52,4.1-4.15,4.1h-3.21c-.14,0-.21-.08-.21-.21Z"/>
                 <path fill="#262626" d="m197.71,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
@@ -105,24 +152,21 @@ export default function App() {
     const [search, setSearch] = useState('');
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [formData, setFormData] = useState({ client: '', agency: '', amount: '', body: 'מקס' });
-    const [activeAction, setActiveAction] = useState(null); // { reqId, offId, type }
+    const [formData, setFormData] = useState({ client: '', agency: '', amount: '', body: '' });
+    const [activeAction, setActiveAction] = useState(null);
     
-    // Use for scrolling/focusing
     const inputRefs = useRef({});
 
     useEffect(() => {
         const initAuth = async () => {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) { console.error("Auth error:", error); }
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(auth);
+          }
         };
         initAuth();
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
+        const unsubscribe = onAuthStateChanged(auth, setUser);
         return () => unsubscribe();
     }, []);
 
@@ -134,24 +178,33 @@ export default function App() {
             const sorted = fetchedData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
             setRequests(sorted);
             setLoading(false);
-        }, (error) => { console.error("Firestore error:", error); setLoading(false); });
+        }, (error) => {
+            console.error("Firestore error:", error);
+            setLoading(false);
+        });
         return () => unsubscribe();
     }, [user]);
 
     const handleAdd = async () => {
-        if (!formData.client || !formData.amount || !user) return;
+        if (!formData.client || !formData.amount || !formData.body || !user) return;
         try {
-            const amountVal = parseInt(parseNumber(formData.amount));
-            await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'requests'), {
+            const amountVal = parseInt(parseNumber(formData.amount)) || 0;
+            const newDoc = {
                 client: formData.client,
                 agency: formData.agency || 'כללי',
                 amount: amountVal,
                 offers: [{ id: Date.now().toString(), body: formData.body, status: 'הוגש', approved: 0 }],
                 archived: false,
                 createdAt: serverTimestamp()
-            });
-            setFormData({ client: '', agency: '', amount: '', body: 'מקס' });
-        } catch (error) { console.error("Add error:", error); }
+            };
+            
+            await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'requests'), newDoc);
+            
+            // איפוס טופס לאחר הצלחה
+            setFormData({ client: '', agency: '', amount: '', body: '' });
+        } catch (error) { 
+            console.error("Add error:", error); 
+        }
     };
 
     const updateOfferStatus = async (reqId, offId, newStatus) => {
@@ -171,13 +224,9 @@ export default function App() {
         
         if (newStatus === 'מאושר חלקי') {
             setActiveAction({ reqId, offId, type: 'status' });
-            // Immediate focus for numeric keyboard
             setTimeout(() => {
               const el = inputRefs.current[offId];
-              if (el) {
-                el.focus();
-                el.select(); // Better UX
-              }
+              if (el) { el.focus(); el.select(); }
             }, 100);
         } else if (newStatus === 'לא מאושר') { 
             setActiveAction({ reqId, offId, type: 'denied' }); 
@@ -220,26 +269,18 @@ export default function App() {
     }, [requests, search, activeTab]);
 
     return (
-        <div className="min-h-screen bg-[#FDFDFD] flex flex-col font-['Assistant',_sans-serif]" dir="rtl">
-            {/* Prevent Auto-Zoom on Focus - Crucial for App-like behavior */}
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            
+        <div className="min-h-screen bg-[#FDFDFD] flex flex-col font-['Assistant',_sans-serif] antialiased" dir="rtl">
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap');
                 .gold-text { color: #d4a55f; }
                 .gold-bg { background: linear-gradient(90deg, #9c7229 0%, #d4a55f 50%, #f6d19c 100%); }
-                .gold-border { border-color: #d4a55f; }
-                .input-field { background-color: #ffffff; border: 1.5px solid #E5E7EB; border-radius: 12px; padding: 12px; font-size: 16px; width: 100%; outline: none; transition: all 0.2s; }
+                .input-field { background-color: #ffffff; border: 1.5px solid #E5E7EB; border-radius: 12px; padding: 12px; font-size: 16px; width: 100%; outline: none; transition: all 0.2s; text-align: right; }
                 .input-field:focus { border-color: #d4a55f; box-shadow: 0 0 0 3px rgba(212, 165, 95, 0.1); }
                 @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
                 .animate-slide { animation: slideUp 0.3s ease-out; }
-                
-                /* Remove blue highlight on touch */
                 * { -webkit-tap-highlight-color: transparent; }
-                input { font-size: 16px !important; } /* Extra insurance against iOS zoom */
             `}</style>
 
-            {/* Header */}
             <header className="bg-white px-6 pt-6 pb-4 sticky top-0 z-50 border-b border-gray-100 shadow-sm">
                 <CredibleLogo />
                 <div className="flex bg-gray-100 p-1 rounded-xl mt-5 max-w-md mx-auto">
@@ -249,43 +290,50 @@ export default function App() {
             </header>
 
             <main className="p-4 pb-24 max-w-lg mx-auto w-full">
-                {/* Search */}
                 <div className="mb-4">
                     <input 
                         type="text" placeholder="חיפוש לקוח..."
-                        className="w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-sm outline-none focus:border-[#d4a55f]"
+                        className="w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-sm outline-none focus:border-[#d4a55f] text-right"
                         value={search} onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
 
-                {/* New Client Form */}
                 {activeTab === 'active' && !search && (
                     <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-50 mb-6 space-y-4 animate-slide">
                         <div className="grid grid-cols-2 gap-3">
-                            <input placeholder="שם הלקוח" className="input-field" value={formData.client} onChange={e => setFormData({...formData, client: e.target.value})} />
-                            <input placeholder="שם סוכנות" className="input-field" value={formData.agency} onChange={e => setFormData({...formData, agency: e.target.value})} />
-                        </div>
-                        <div className="relative">
-                           <input 
-                                placeholder="סכום מימון מבוקש" className="input-field text-center font-extrabold text-lg gold-text" 
-                                inputMode="numeric" pattern="[0-9]*"
-                                value={formatNumber(formData.amount)} 
-                                onChange={e => setFormData({...formData, amount: parseNumber(e.target.value)})}
+                            <input 
+                                placeholder="שם הלקוח" className="input-field" 
+                                value={formData.client} 
+                                onChange={e => setFormData({...formData, client: e.target.value})} 
                             />
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-300 text-sm">₪</div>
+                            <input 
+                                placeholder="שם סוכנות" className="input-field" 
+                                value={formData.agency} 
+                                onChange={e => setFormData({...formData, agency: e.target.value})} 
+                            />
                         </div>
-                        <div className="flex flex-wrap gap-1.5 justify-center py-1">
-                            {BODIES.map(b => (
-                                <button 
-                                    key={b} onClick={() => setFormData({...formData, body: b})} 
-                                    className={`px-3.5 py-2 rounded-lg text-[11px] font-bold border transition-all ${formData.body === b ? 'gold-bg text-white border-transparent' : 'bg-white text-gray-500 border-gray-200 hover:border-[#d4a55f]'}`}
-                                >
-                                    {b}
-                                </button>
-                            ))}
+                        
+                        <div className="grid grid-cols-1 gap-3">
+                            <BodySelect 
+                                value={formData.body} 
+                                onChange={(val) => setFormData({...formData, body: val})} 
+                            />
+                            
+                            <div className="relative">
+                               <input 
+                                    placeholder="סכום מימון מבוקש" 
+                                    className="input-field text-center font-extrabold text-lg gold-text" 
+                                    inputMode="numeric"
+                                    value={formatNumber(formData.amount)} 
+                                    onChange={e => setFormData({...formData, amount: parseNumber(e.target.value)})}
+                                />
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-300 text-sm">₪</div>
+                            </div>
                         </div>
+
                         <button 
-                            onClick={handleAdd} disabled={!formData.client || !formData.amount}
+                            onClick={handleAdd} 
+                            disabled={!formData.client || !formData.amount || !formData.body}
                             className="w-full gold-bg text-white py-4 rounded-xl font-bold text-md shadow-lg active:scale-[0.98] transition-all disabled:opacity-40"
                         >
                             הקם לקוח חדש
@@ -293,148 +341,128 @@ export default function App() {
                     </div>
                 )}
 
-                {/* List of Requests */}
                 {loading ? (
                     <div className="text-center py-20 text-gray-400 font-bold animate-pulse">מעדכן נתונים...</div>
                 ) : (
                     <div className="space-y-4">
-                        {filtered.map((req) => (
-                            <div key={req.id} className="bg-white rounded-[22px] shadow-sm border border-gray-100 overflow-hidden animate-slide">
-                                {/* Compact Card Header */}
-                                <div className="px-5 py-2.5 border-b border-gray-50 flex justify-between items-center bg-[#FAFAFA]">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full gold-bg"></div>
-                                        <div>
-                                            <div className="text-[8px] text-gray-400 font-bold mb-0.5 uppercase tracking-wider">לקוח</div>
-                                            <div className="text-lg font-extrabold text-[#262626] leading-tight">{req.client}</div>
-                                        </div>
-                                    </div>
-                                    <div className="text-left">
-                                        <div className="text-[8px] text-gray-400 font-bold mb-0.5 uppercase tracking-wider">סוכנות</div>
-                                        <div className="text-xs font-bold text-gray-600 bg-white px-3 py-1 rounded-full border border-gray-200">{req.agency}</div>
-                                    </div>
-                                </div>
-
-                                <div className="p-4 space-y-3">
-                                    {req.offers.map((off, index) => (
-                                        <div key={off.id} className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm transition-all hover:border-[#d4a55f]/30">
-                                            <div className="grid grid-cols-[20px_1fr_1fr_1fr_1.3fr] gap-2 items-center text-center">
-                                                {/* 1. Numbering */}
-                                                <div className="text-[10px] font-bold text-gray-300 text-right">{index + 1}.</div>
-                                                
-                                                {/* 2. Body Name */}
-                                                <div className="text-[13px] font-extrabold text-[#262626] truncate text-right">{off.body}</div>
-                                                
-                                                {/* 3. Original Amount (Aligned to Body font size) */}
-                                                <div className="text-[13px] font-extrabold text-gray-400">₪{formatNumber(req.amount)}</div>
-                                                
-                                                {/* 4. Approved Amount Input */}
-                                                <div>
-                                                    {off.status.includes('מאושר') ? (
-                                                        <input 
-                                                            ref={el => inputRefs.current[off.id] = el}
-                                                            className="w-full text-center text-xs font-bold text-[#9c7229] bg-amber-50/50 border border-amber-100 rounded-md py-1.5 outline-none focus:border-[#d4a55f]"
-                                                            inputMode="numeric" 
-                                                            pattern="[0-9]*"
-                                                            value={formatNumber(off.approved)}
-                                                            onChange={(e) => updateApprovedAmount(req.id, off.id, e.target.value)}
-                                                        />
-                                                    ) : <span className="text-gray-200 text-xs">-</span>}
-                                                </div>
-
-                                                {/* 5. Status Toggle */}
-                                                <button 
-                                                    onClick={() => setActiveAction({ reqId: req.id, offId: off.id, type: 'status' })}
-                                                    className={`py-2 px-1 rounded-lg text-[10px] font-extrabold border shadow-sm active:scale-95 transition-all ${STATUS_OPTIONS.find(o => o.value === off.status)?.color || 'bg-gray-100'}`}
-                                                >
-                                                    {off.status}
-                                                </button>
+                        {filtered.length === 0 ? (
+                            <div className="text-center py-10 text-gray-400 text-sm italic">לא נמצאו לקוחות מתאימים</div>
+                        ) : (
+                            filtered.map((req) => (
+                                <div key={req.id} className="bg-white rounded-[22px] shadow-sm border border-gray-100 overflow-hidden animate-slide">
+                                    <div className="px-5 py-2.5 border-b border-gray-50 flex justify-between items-center bg-[#FAFAFA]">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full gold-bg"></div>
+                                            <div>
+                                                <div className="text-[8px] text-gray-400 font-bold mb-0.5 uppercase tracking-wider text-right">לקוח</div>
+                                                <div className="text-lg font-extrabold text-[#262626] leading-tight text-right">{req.client}</div>
                                             </div>
-
-                                            {/* Contextual Actions Panel */}
-                                            {activeAction?.offId === off.id && (
-                                                <div className="mt-3 pt-3 border-t border-gray-50 animate-slide">
-                                                    {activeAction.type === 'status' && (
-                                                        <div className="grid grid-cols-3 gap-1.5">
-                                                            {STATUS_OPTIONS.map(opt => (
-                                                                <button 
-                                                                    key={opt.value} onClick={() => updateOfferStatus(req.id, off.id, opt.value)}
-                                                                    className={`text-[10px] font-bold p-2.5 border rounded-lg transition-all ${off.status === opt.value ? 'gold-bg text-white border-transparent' : 'bg-gray-50 border-gray-100 text-gray-700 hover:border-[#d4a55f]/50'}`}
-                                                                >
-                                                                    {opt.label}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    )}
-
-                                                    {activeAction.type === 'denied' && (
-                                                        <div className="flex gap-2">
-                                                            <button onClick={() => setActiveAction({...activeAction, type: 'newOffer'})} className="flex-1 py-2.5 bg-amber-50 text-[#9c7229] text-[10px] font-bold rounded-lg border border-amber-100">גוף נוסף</button>
-                                                            <button onClick={() => setArchiveState(req.id, true)} className="flex-1 py-2.5 bg-red-600 text-white text-[10px] font-bold rounded-lg shadow-sm">לארכיון</button>
-                                                            <button onClick={() => setActiveAction(null)} className="px-3 py-2 text-gray-400 text-[10px] font-bold underline">ביטול</button>
-                                                        </div>
-                                                    )}
-
-                                                    {activeAction.type === 'meeting' && (
-                                                        <div className="flex gap-2">
-                                                            <button onClick={() => setArchiveState(req.id, true)} className="flex-1 py-2.5 gold-bg text-white text-[10px] font-bold rounded-lg shadow-md">העבר לארכיון</button>
-                                                            <button onClick={() => setActiveAction(null)} className="flex-1 py-2.5 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-lg border border-gray-200">השאר פעיל</button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
                                         </div>
-                                    ))}
-
-                                    {!req.archived && (
-                                        <div className="mt-2">
-                                            {activeAction?.reqId === req.id && activeAction.type === 'newOffer' ? (
-                                                <div className="grid grid-cols-4 gap-1.5 p-3 bg-gray-50 rounded-xl border border-gray-100 animate-slide">
-                                                    {BODIES.map(b => (
-                                                        <button key={b} onClick={() => addExtraOffer(req.id, b)} className="bg-white border border-gray-200 p-2 rounded-lg text-[10px] font-bold shadow-sm active:scale-95 transition-all hover:border-[#d4a55f]">
-                                                            {b}
-                                                        </button>
-                                                    ))}
-                                                    <button onClick={() => setActiveAction(null)} className="col-span-4 py-2 text-[10px] text-gray-400 font-bold underline">סגור</button>
-                                                </div>
-                                            ) : (
-                                                <button 
-                                                    onClick={() => setActiveAction({ reqId: req.id, offId: `new-${req.id}`, type: 'newOffer' })}
-                                                    className="w-full py-3.5 bg-white border border-dashed border-gray-200 rounded-xl text-gray-400 text-xs font-bold hover:border-[#d4a55f] hover:text-[#d4a55f] transition-all flex items-center justify-center gap-2"
-                                                >
-                                                    <span>+ הגשה לגוף מימון נוסף</span>
-                                                </button>
-                                            )}
+                                        <div className="text-left">
+                                            <div className="text-[8px] text-gray-400 font-bold mb-0.5 uppercase tracking-wider text-left">סוכנות</div>
+                                            <div className="text-xs font-bold text-gray-600 bg-white px-3 py-1 rounded-full border border-gray-200">{req.agency}</div>
                                         </div>
-                                    )}
-                                    
-                                    {req.archived && (
-                                        <button onClick={() => setArchiveState(req.id, false)} className="w-full py-3 bg-green-50 text-green-700 text-[11px] font-bold rounded-xl border border-green-100 active:bg-green-100 transition-colors">
-                                            החזר ללקוחות פעילים
-                                        </button>
-                                    )}
+                                    </div>
+
+                                    <div className="p-4 space-y-3">
+                                        {req.offers.map((off, index) => (
+                                            <div key={off.id} className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+                                                <div className="grid grid-cols-[20px_1fr_1fr_1fr_1.3fr] gap-2 items-center text-center">
+                                                    <div className="text-[10px] font-bold text-gray-300 text-right">{index + 1}.</div>
+                                                    <div className="text-[13px] font-extrabold text-[#262626] truncate text-right">{off.body}</div>
+                                                    <div className="text-[13px] font-extrabold text-gray-400">₪{formatNumber(req.amount)}</div>
+                                                    <div>
+                                                        {off.status.includes('מאושר') ? (
+                                                            <input 
+                                                                ref={el => inputRefs.current[off.id] = el}
+                                                                className="w-full text-center text-xs font-bold text-[#9c7229] bg-amber-50/50 border border-amber-100 rounded-md py-1.5 outline-none focus:border-[#d4a55f]"
+                                                                inputMode="numeric" 
+                                                                value={formatNumber(off.approved)}
+                                                                onChange={(e) => updateApprovedAmount(req.id, off.id, e.target.value)}
+                                                            />
+                                                        ) : <span className="text-gray-200 text-xs">-</span>}
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => setActiveAction({ reqId: req.id, offId: off.id, type: 'status' })}
+                                                        className={`py-2 px-1 rounded-lg text-[10px] font-extrabold border shadow-sm transition-all ${STATUS_OPTIONS.find(o => o.value === off.status)?.color || 'bg-gray-100'}`}
+                                                    >
+                                                        {off.status}
+                                                    </button>
+                                                </div>
+
+                                                {activeAction?.offId === off.id && (
+                                                    <div className="mt-3 pt-3 border-t border-gray-50 animate-slide">
+                                                        {activeAction.type === 'status' && (
+                                                            <div className="grid grid-cols-3 gap-1.5">
+                                                                {STATUS_OPTIONS.map(opt => (
+                                                                    <button 
+                                                                        key={opt.value} onClick={() => updateOfferStatus(req.id, off.id, opt.value)}
+                                                                        className={`text-[10px] font-bold p-2.5 border rounded-lg transition-all ${off.status === opt.value ? 'gold-bg text-white border-transparent' : 'bg-gray-50 border-gray-100 text-gray-700'}`}
+                                                                    >
+                                                                        {opt.label}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        )}
+
+                                                        {activeAction.type === 'denied' && (
+                                                            <div className="flex gap-2">
+                                                                <button onClick={() => setActiveAction({...activeAction, type: 'newOffer'})} className="flex-1 py-2.5 bg-amber-50 text-[#9c7229] text-[10px] font-bold rounded-lg border border-amber-100">גוף נוסף</button>
+                                                                <button onClick={() => setArchiveState(req.id, true)} className="flex-1 py-2.5 bg-red-600 text-white text-[10px] font-bold rounded-lg">לארכיון</button>
+                                                                <button onClick={() => setActiveAction(null)} className="px-3 py-2 text-gray-400 text-[10px] font-bold underline">ביטול</button>
+                                                            </div>
+                                                        )}
+
+                                                        {activeAction.type === 'meeting' && (
+                                                            <div className="flex gap-2">
+                                                                <button onClick={() => setArchiveState(req.id, true)} className="flex-1 py-2.5 gold-bg text-white text-[10px] font-bold rounded-lg shadow-md">העבר לארכיון</button>
+                                                                <button onClick={() => setActiveAction(null)} className="flex-1 py-2.5 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-lg border border-gray-200">השאר פעיל</button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+
+                                        {!req.archived && (
+                                            <div className="mt-2">
+                                                {activeAction?.reqId === req.id && activeAction.type === 'newOffer' ? (
+                                                    <div className="grid grid-cols-1 gap-1.5 p-3 bg-gray-50 rounded-xl border border-gray-100 animate-slide">
+                                                        <BodySelect value="" placeholder="בחר גוף מימון נוסף" onChange={(val) => addExtraOffer(req.id, val)} />
+                                                        <button onClick={() => setActiveAction(null)} className="py-2 text-[10px] text-gray-400 font-bold underline">ביטול</button>
+                                                    </div>
+                                                ) : (
+                                                    <button 
+                                                        onClick={() => setActiveAction({ reqId: req.id, offId: `new-${req.id}`, type: 'newOffer' })}
+                                                        className="w-full py-3.5 bg-white border border-dashed border-gray-200 rounded-xl text-gray-400 text-xs font-bold flex items-center justify-center gap-2"
+                                                    >
+                                                        <span>+ הגשה לגוף מימון נוסף</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                        
+                                        {req.archived && (
+                                            <button onClick={() => setArchiveState(req.id, false)} className="w-full py-3 bg-green-50 text-green-700 text-[11px] font-bold rounded-xl border border-green-100">
+                                                החזר ללקוחות פעילים
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                        {filtered.length === 0 && !loading && (
-                            <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
-                                <div className="text-3xl mb-2 text-gray-300">📋</div>
-                                <div className="text-gray-400 text-sm font-bold">אין נתונים להצגה</div>
-                            </div>
+                            ))
                         )}
                     </div>
                 )}
             </main>
 
-            {/* Bottom Sticky Info Bar */}
             <footer className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md px-6 py-3 border-t border-gray-100 text-center text-[10px] text-gray-400 font-medium z-40">
                 <div className="max-w-md mx-auto flex justify-between items-center">
                    <div className="flex items-center gap-1">
                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                       <span>מערכת פעילה</span>
+                       <span>מערכת מחוברת</span>
                    </div>
-                   <span className="gold-text font-bold">Credible Plus v1.2</span>
-                   <span className="font-bold">ID: {user?.uid?.substring(0,4)}</span>
+                   <span className="gold-text font-bold">Credible Plus v1.3</span>
+                   <span className="font-bold">UID: {user?.uid?.substring(0,6)}</span>
                 </div>
             </footer>
         </div>
