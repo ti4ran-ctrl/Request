@@ -1,470 +1,317 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  setDoc, 
-  onSnapshot, 
-  query, 
-  addDoc, 
-  updateDoc, 
-  serverTimestamp 
-} from 'firebase/firestore';
-import { 
-  getAuth, 
-  signInAnonymously, 
-  onAuthStateChanged,
-  signInWithCustomToken
-} from 'firebase/auth';
-
-/** * הגדרות FIREBASE */
-const firebaseConfig = JSON.parse(__firebase_config);
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'credible-plus-production';
-
-const BODIES = ['מקס', 'מימון ישיר', 'כאל', 'איגוד', 'פמה', 'פועלים', 'מזרחי', 'דיסקונט'];
-
-const STATUS_OPTIONS = [
-    { value: 'הוגש', label: 'הוגש', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-    { value: 'מאושר מלא', label: 'מאושר מלא', color: 'bg-green-100 text-green-700 border-green-200' },
-    { value: 'מאושר חלקי', label: 'מאושר חלקי', color: 'bg-amber-100 text-amber-700 border-amber-200' },
-    { value: 'לא מאושר', label: 'לא מאושר', color: 'bg-red-100 text-red-700 border-red-200' },
-    { value: 'תואם פגישה', label: 'תואם פגישה', color: 'bg-purple-100 text-purple-700 border-purple-200' }
-];
-
-const formatNumber = (num) => {
-    if (!num && num !== 0) return '';
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
-
-const parseNumber = (str) => {
-    if (typeof str !== 'string') return str;
-    return str.replace(/,/g, '');
-};
-
-// קומפוננטת דרופדאון מעוצבת
-const BodySelect = ({ value, onChange, placeholder = "בחר גוף מימון" }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    return (
-        <div className="relative w-full" ref={dropdownRef}>
-            <button
-                type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                className="input-field flex justify-between items-center bg-white"
-            >
-                <span className={value ? 'text-[#262626] font-bold' : 'text-gray-400'}>
-                    {value || placeholder}
-                </span>
-                <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            
-            {isOpen && (
-                <div className="absolute z-[100] mt-1 w-full bg-white border border-gray-100 rounded-xl shadow-2xl max-h-48 overflow-y-auto animate-slide">
-                    {BODIES.map((body) => (
-                        <button
-                            key={body}
-                            type="button"
-                            onClick={() => {
-                                onChange(body);
-                                setIsOpen(false);
-                            }}
-                            className={`w-full text-right px-4 py-3 text-sm font-bold transition-colors hover:bg-gray-50 ${value === body ? 'gold-text bg-amber-50/30' : 'text-gray-600'}`}
-                        >
-                            {body}
-                        </button>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-};
-
-const CredibleLogo = () => (
-    <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 301.68 65.71" className="h-10 mx-auto">
-        <defs>
-            <linearGradient id="logo-grad-1" x1="0" y1="58.62" x2="91.7" y2="58.62" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stopColor="#9c7229"/><stop offset=".31" stopColor="#c89644"/><stop offset=".64" stopColor="#d4a55f"/><stop offset="1" stopColor="#f6d19c"/>
-            </linearGradient>
-            <linearGradient id="logo-grad-2" x1="209.98" y1="58.62" x2="301.68" y2="58.62" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stopColor="#f6d19c"/><stop offset=".36" stopColor="#d4a55f"/><stop offset=".69" stopColor="#c89644"/><stop offset="1" stopColor="#9c7229"/>
-            </linearGradient>
-        </defs>
-        <g id="Layer_1-2" data-name="Layer 1">
-            <g>
-                <path fill="#262626" d="m100.87,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m110.13,62.95l-3.49-5.02c-1.32.77-1.6,2.09-1.6,3.1,0,.91.17,1.38.31,1.84.05.14-.05.23-.18.23h-.68c-.15,0-.21-.09-.26-.23-.14-.43-.31-1.04-.31-1.9,0-1.46.48-3.03,2.1-3.92l-1.92-2.76c-.09-.12-.03-.25.11-.25h.86c.12,0,.18.05.26.15l3.26,4.68c1.4-.71,1.69-1.9,1.69-2.93,0-.74-.15-1.21-.29-1.69-.03-.12.04-.21.18-.21h.69c.14,0,.2.09.25.23.14.41.29,1,.29,1.78,0,1.41-.51,2.86-2.2,3.72l2.15,3.09c.09.12.03.25-.11.25h-.86c-.12,0-.18-.05-.26-.15Z"/>
-                <path fill="#262626" d="m118.85,62.89v-5.7c0-1.44-.43-2.1-2.04-2.1h-3.49c-.14,0-.21-.08-.21-.21v-.61c0-.14.08-.21.21-.21h3.96c1.83,0,2.72,1.06,2.72,2.67v6.17c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m122.48,59.06v-4.81c0-.14.08-.21.21-.21h.72c.14,0,.21.08.21.21v3.62h.68c1.49,0,2.06-.52,2.06-1.78v-1.84c0-.14.08-.21.21-.21h.69c.14,0,.21.08.21.21v1.97c0,1.6-.83,2.66-2.99,2.66h-.86c.03,2.47,1.12,3.23,3.29,3.23s3.27-.78,3.27-3.35v-4.5c0-.14.08-.21.21-.21h.72c.14,0,.21.08.21.21v4.81c0,2.84-1.52,4.16-4.42,4.16s-4.44-1.32-4.44-4.16Z"/>
-                <path fill="#262626" d="m139.73,62.95l-3.49-5.02c-1.32.77-1.6,2.09-1.6,3.1,0,.91.17,1.38.31,1.84.05.14-.05.23-.18.23h-.68c-.15,0-.21-.09-.26-.23-.14-.43-.31-1.04-.31-1.9,0-1.46.48-3.03,2.1-3.92l-1.92-2.76c-.09-.12-.03-.25.11-.25h.86c.12,0,.18.05.26.15l3.26,4.68c1.4-.71,1.69-1.9,1.69-2.93,0-.74-.15-1.21-.29-1.69-.03-.12.04-.21.18-.21h.69c.14,0,.2.09.25.23.14.41.29,1,.29,1.78,0,1.41-.51,2.86-2.2,3.72l2.15,3.09c.09.12.03.25-.11.25h-.86c-.12,0-.18-.05-.26-.15Z"/>
-                <path fill="#262626" d="m146.36,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m150.2,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m154.09,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m157.53,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m161.05,62.89v-.61c0-.14.08-.21.21-.21h.17c3.41,0,4.82-2.83,4.82-6.14v-.52c0-.2-.08-.31-.28-.31h-5.1c-.34,0-.52-.21-.52-.55v-1.97c0-.14.08-.21.21-.21h.71c.14,0,.21.08.21.21v1.47h5.25c.37,0,.64.28.64.66v1.55c0,3.64-1.98,6.85-5.81,6.85h-.32c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m170.2,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m176.45,65.5v-1124c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v4.87h1.15c2.13,0,2.79-.86,2.79-2.32v-2.55c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v2.66c0,1.77-.91,3.26-3.62,3.26h-1.47v5.33c0,.14-.08.21-.21.21h-.72c-.14,0-.22-.08-.22-.21Z"/>
-                <path fill="#262626" d="m185.28,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m187.92,62.89v-.61c0-.14.08-.21.21-.21h2.13l-1.69-7.8c-.03-.14.08-.21.21-.21h.74c.14,0,.18.08.21.21l1.67,7.79c2.03-.18,2.92-1.44,2.92-3.49v-4.3c0-.14.08-.21.21-.21h.72c.14,0,.21.08.21.21v4.75c0,2.4-1.52,4.1-4.15,4.1h-3.21c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m197.71,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
-                <path fill="#262626" d="m201.1,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
-            </g>
-            <rect fill="url(#logo-grad-2)" x="209.98" y="58.3" width="91.7" height=".64"/>
-            <rect fill="url(#logo-grad-1)" y="58.3" width="91.7" height=".64"/>
-            <g>
-                <path fill="#262626" d="m59.83.12c-6.52,0-9.2,4.63-9.2,10.78v21.81c0,6.15,2.68,10.78,9.2,10.78s9.2-4.63,9.2-10.78v-4.87h-2.68v5.06c0,4.57-1.77,7.98-6.46,7.98s-6.46-3.41-6.46-7.98V10.72c0-4.57,1.77-8.04,6.46-8.04s6.46,3.47,6.46,8.04v3.72h2.68v-3.53c0-6.15-2.68-10.78-9.2-10.78Z"/>
-                <path fill="#262626" d="m91.63,31.38c0-4.63-1.77-7.74-6.15-8.71,4.2-.97,6.15-3.84,6.15-8.83v-3.72c0-6.03-2.62-9.63-9.14-9.63h-8.89v42.65h2.8v-19.07h4.45c4.87,0,7.98,1.58,7.98,7.25v6.7c0,2.32.18,3.84.91,5.12h2.92c-.91-1.4-1.03-3.35-1.03-5.12v-6.64Zm-15.23-9.87V3.05h6.03c4.63,0,6.4,2.74,6.4,7.31v4.02c0,5.73-2.92,7.13-7.92,7.13h-4.51Z"/>
-                <polygon fill="#262626" points="97.11 43.13 113.93 43.13 113.93 40.58 99.91 40.58 99.91 22.79 111.55 22.79 111.55 20.23 99.91 20.23 99.91 3.05 113.93 3.05 113.93 .49 97.11 .49 97.11 43.13"/>
-                <path fill="#262626" d="m127.88.49h-9.38v42.65h9.38c6.58,0,9.44-4.33,9.44-10.6V11.09c0-6.28-2.86-10.6-9.44-10.6Zm6.64,32.17c0,4.69-1.95,7.92-6.7,7.92h-6.52V3.05h6.52c4.69,0,6.7,3.23,6.7,7.92v21.69Z"/>
-                <rect fill="#262626" x="141.95" y=".49" width="2.8" height="42.65"/>
-                <path fill="#262626" d="m161.69,20.41c4.33-.91,5.61-3.78,5.61-8.41v-2.44c0-5.91-2.32-9.08-8.71-9.08h-8.96v42.65h9.14c6.52,0,9.32-3.72,9.32-9.87v-3.72c0-4.81-1.77-8.22-6.4-9.14Zm-9.26-17.36h6.09c4.57,0,5.97,2.32,5.97,6.76v2.74c0,5.42-2.32,6.76-7.31,6.76h-4.75V3.05Zm12.85,30.16c0,4.75-1.83,7.37-6.52,7.37h-6.34v-18.7h5.3c5.06,0,7.55,1.95,7.55,7.49v3.84Z"/>
-                <polygon fill="#262626" points="175.46 .49 172.65 .49 172.65 43.13 188.86 43.13 188.86 40.58 175.46 40.58 175.46 .49"/>
-                <polygon fill="#262626" points="209.88 3.05 209.88 .49 193.06 .49 193.06 43.13 209.88 43.13 209.88 40.58 195.87 40.58 195.87 22.79 207.5 22.79 207.5 20.23 195.87 20.23 195.87 3.05 209.88 3.05"/>
-            </g>
-            <path fill="url(#logo-grad-1)" d="m224.32.49h-9.87v42.65h6.7v-16.02h3.17c6.7,0,9.99-3.72,9.99-10.54v-5.54c0-6.82-3.29-10.54-9.99-10.54Zm3.29,16.51c0,3.05-1.16,4.02-3.29,4.02h-3.17V6.58h3.17c2.13,0,3.29.97,3.29,4.02v6.4Z"/>
-            <polygon fill="url(#logo-grad-1)" points="244.42 .49 237.72 .49 237.72 43.13 255.45 43.13 255.45 37.04 244.42 37.04 244.42 .49"/>
-            <path fill="url(#logo-grad-1)" d="m271.71,33.39c0,3.05-1.34,4.14-3.47,4.14s-3.47-1.1-3.47-4.14V.49h-6.7v32.47c0,6.82,3.41,10.72,9.99,10.72s9.99-3.9,9.99-10.72V.49h-6.34v32.9Z"/>
-            <path fill="url(#logo-grad-1)" d="m288.47,10.3c0-3.05,1.22-4.2,3.35-4.2s3.35,1.16,3.35,4.2v1.77h6.34v-1.34c0-6.82-3.35-10.72-9.87-10.72s-9.87,3.9-9.87,10.72c0,12.18,13.1,13.83,13.1,22.6,0,3.05-1.34,4.14-3.47,4.14s-3.47-1.1-3.47-4.14v-3.05h-6.34v2.62c0,6.82,3.41,10.72,9.99,10.72s9.99-3.9,9.99-10.72c0-12.18-13.1-13.83-13.1-22.6Z"/>
-            <path fill="url(#logo-grad-1)" d="m32.51,38.57h-4c-.99,0-1.79-.8-1.79-1.79v-1.55c-.03-.21-.06-.42-.06-.63v-9.22h-9.22c-.14,0-.28,0-.42-.02h-1.62c-.99,0-1.79-.8-1.79-1.79v-4c0-.99.8-1.79,1.79-1.79h11.26v-9.21c0-.22.02-.42.06-.63v-1.38c0-.99.8-1.79,1.79-1.79h4c.99,0,1.79.8,1.79,1.79v11.22h9.1V6.47c0-3.57-2.9-6.47-6.47-6.47H6.74C3.17,0,.27,2.9.27,6.47v30.2c0,3.57,2.9,6.47,6.47,6.47h30.2c3.57,0,6.47-2.9,6.47-6.47v-11.28h-9.1v11.4c0,.99-.8,1.79-1.79,1.79Z"/>
-        </g>
-    </svg>
-);
-
-export default function App() {
-    const [user, setUser] = useState(null);
-    const [activeTab, setActiveTab] = useState('active');
-    const [search, setSearch] = useState('');
-    const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [formData, setFormData] = useState({ client: '', agency: '', amount: '', body: '' });
-    const [activeAction, setActiveAction] = useState(null);
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credible Plus | ניהול לקוחות</title>
     
-    const inputRefs = useRef({});
+    <!-- External Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
-    useEffect(() => {
-        const initAuth = async () => {
-          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            await signInWithCustomToken(auth, __initial_auth_token);
-          } else {
-            await signInAnonymously(auth);
-          }
+    <style>
+        body { font-family: 'Assistant', sans-serif; background-color: #FDFDFD; }
+        .gold-text { color: #d4a55f; }
+        .gold-bg { background: linear-gradient(90deg, #9c7229 0%, #d4a55f 50%, #f6d19c 100%); }
+        .input-field { background-color: #ffffff; border: 1.5px solid #E5E7EB; border-radius: 12px; padding: 12px; font-size: 16px; width: 100%; outline: none; transition: all 0.2s; text-align: right; }
+        .input-field:focus { border-color: #d4a55f; box-shadow: 0 0 0 3px rgba(212, 165, 95, 0.1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide { animation: slideUp 0.3s ease-out; }
+        * { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        // --- Firebase Config (Placeholder) ---
+        // הערה: כשאתה מעלה ל-GitHub, וודא שמשתני ה-Firebase מוגדרים או מוזרקים
+        const firebaseConfig = {
+            apiKey: "",
+            authDomain: "",
+            projectId: "",
+            storageBucket: "",
+            messagingSenderId: "",
+            appId: ""
         };
-        initAuth();
-        const unsubscribe = onAuthStateChanged(auth, setUser);
-        return () => unsubscribe();
-    }, []);
 
-    useEffect(() => {
-        if (!user) return;
-        const q = query(collection(db, 'artifacts', appId, 'users', user.uid, 'requests'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const fetchedData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            const sorted = fetchedData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-            setRequests(sorted);
-            setLoading(false);
-        }, (error) => {
-            console.error("Firestore error:", error);
-            setLoading(false);
-        });
-        return () => unsubscribe();
-    }, [user]);
+        const BODIES = ['מקס', 'מימון ישיר', 'כאל', 'איגוד', 'פמה', 'פועלים', 'מזרחי', 'דיסקונט'];
+        const STATUS_OPTIONS = [
+            { value: 'הוגש', label: 'הוגש', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+            { value: 'מאושר מלא', label: 'מאושר מלא', color: 'bg-green-100 text-green-700 border-green-200' },
+            { value: 'מאושר חלקי', label: 'מאושר חלקי', color: 'bg-amber-100 text-amber-700 border-amber-200' },
+            { value: 'לא מאושר', label: 'לא מאושר', color: 'bg-red-100 text-red-700 border-red-200' },
+            { value: 'תואם פגישה', label: 'תואם פגישה', color: 'bg-purple-100 text-purple-700 border-purple-200' }
+        ];
 
-    const handleAdd = async () => {
-        if (!formData.client || !formData.amount || !formData.body || !user) return;
-        try {
-            const amountVal = parseInt(parseNumber(formData.amount)) || 0;
-            const newDoc = {
-                client: formData.client,
-                agency: formData.agency || 'כללי',
-                amount: amountVal,
-                offers: [{ id: Date.now().toString(), body: formData.body, status: 'הוגש', approved: 0 }],
-                archived: false,
-                createdAt: serverTimestamp()
-            };
-            
-            await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'requests'), newDoc);
-            
-            // איפוס טופס לאחר הצלחה
-            setFormData({ client: '', agency: '', amount: '', body: '' });
-        } catch (error) { 
-            console.error("Add error:", error); 
-        }
-    };
+        const formatNumber = (num) => {
+            if (!num && num !== 0) return '';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        };
 
-    const updateOfferStatus = async (reqId, offId, newStatus) => {
-        if (!user) return;
-        const req = requests.find(r => r.id === reqId);
-        if (!req) return;
-        
-        const updatedOffers = req.offers.map(off => {
-            if (off.id === offId) {
-                const approvedVal = newStatus === 'מאושר מלא' ? req.amount : off.approved;
-                return { ...off, status: newStatus, approved: approvedVal };
-            }
-            return off;
-        });
-        
-        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'requests', reqId), { offers: updatedOffers });
-        
-        if (newStatus === 'מאושר חלקי') {
-            setActiveAction({ reqId, offId, type: 'status' });
-            setTimeout(() => {
-              const el = inputRefs.current[offId];
-              if (el) { el.focus(); el.select(); }
-            }, 100);
-        } else if (newStatus === 'לא מאושר') { 
-            setActiveAction({ reqId, offId, type: 'denied' }); 
-        } else if (newStatus === 'תואם פגישה') { 
-            setActiveAction({ reqId, offId, type: 'meeting' }); 
-        } else { 
-            setActiveAction(null); 
-        }
-    };
+        const parseNumber = (str) => {
+            if (typeof str !== 'string') return str;
+            return str.replace(/,/g, '');
+        };
 
-    const updateApprovedAmount = async (reqId, offId, val) => {
-        if (!user) return;
-        const req = requests.find(r => r.id === reqId);
-        if (!req) return;
-        const numericVal = parseInt(parseNumber(val)) || 0;
-        const updatedOffers = req.offers.map(off => 
-            off.id === offId ? { ...off, approved: numericVal } : off
+        const CredibleLogo = () => (
+            <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 301.68 65.71" className="h-10 mx-auto">
+                <defs>
+                    <linearGradient id="logo-grad-1" x1="0" y1="58.62" x2="91.7" y2="58.62" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stopColor="#9c7229"/><stop offset=".31" stopColor="#c89644"/><stop offset=".64" stopColor="#d4a55f"/><stop offset="1" stopColor="#f6d19c"/>
+                    </linearGradient>
+                    <linearGradient id="logo-grad-2" x1="209.98" y1="58.62" x2="301.68" y2="58.62" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stopColor="#f6d19c"/><stop offset=".36" stopColor="#d4a55f"/><stop offset=".69" stopColor="#c89644"/><stop offset="1" stopColor="#9c7229"/>
+                    </linearGradient>
+                </defs>
+                <g id="Layer_1-2" data-name="Layer 1">
+                    <g>
+                        <path fill="#262626" d="m100.87,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
+                        <path fill="#262626" d="m110.13,62.95l-3.49-5.02c-1.32.77-1.6,2.09-1.6,3.1,0,.91.17,1.38.31,1.84.05.14-.05.23-.18.23h-.68c-.15,0-.21-.09-.26-.23-.14-.43-.31-1.04-.31-1.9,0-1.46.48-3.03,2.1-3.92l-1.92-2.76c-.09-.12-.03-.25.11-.25h.86c.12,0,.18.05.26.15l3.26,4.68c1.4-.71,1.69-1.9,1.69-2.93,0-.74-.15-1.21-.29-1.69-.03-.12.04-.21.18-.21h.69c.14,0,.2.09.25.23.14.41.29,1,.29,1.78,0,1.41-.51,2.86-2.2,3.72l2.15,3.09c.09.12.03.25-.11.25h-.86c-.12,0-.18-.05-.26-.15Z"/>
+                        <path fill="#262626" d="m118.85,62.89v-5.7c0-1.44-.43-2.1-2.04-2.1h-3.49c-.14,0-.21-.08-.21-.21v-.61c0-.14.08-.21.21-.21h3.96c1.83,0,2.72,1.06,2.72,2.67v6.17c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
+                        <path fill="#262626" d="m122.48,59.06v-4.81c0-.14.08-.21.21-.21h.72c.14,0,.21.08.21.21v3.62h.68c1.49,0,2.06-.52,2.06-1.78v-1.84c0-.14.08-.21.21-.21h.69c.14,0,.21.08.21.21v1.97c0,1.6-.83,2.66-2.99,2.66h-.86c.03,2.47,1.12,3.23,3.29,3.23s3.27-.78,3.27-3.35v-4.5c0-.14.08-.21.21-.21h.72c.14,0,.21.08.21.21v4.81c0,2.84-1.52,4.16-4.42,4.16s-4.44-1.32-4.44-4.16Z"/>
+                        <path fill="#262626" d="m139.73,62.95l-3.49-5.02c-1.32.77-1.6,2.09-1.6,3.1,0,.91.17,1.38.31,1.84.05.14-.05.23-.18.23h-.68c-.15,0-.21-.09-.26-.23-.14-.43-.31-1.04-.31-1.9,0-1.46.48-3.03,2.1-3.92l-1.92-2.76c-.09-.12-.03-.25.11-.25h.86c.12,0,.18.05.26.15l3.26,4.68c1.4-.71,1.69-1.9,1.69-2.93,0-.74-.15-1.21-.29-1.69-.03-.12.04-.21.18-.21h.69c.14,0,.2.09.25.23.14.41.29,1,.29,1.78,0,1.41-.51,2.86-2.2,3.72l2.15,3.09c.09.12.03.25-.11.25h-.86c-.12,0-.18-.05-.26-.15Z"/>
+                        <path fill="#262626" d="m146.36,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
+                        <path fill="#262626" d="m150.2,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
+                        <path fill="#262626" d="m154.09,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
+                        <path fill="#262626" d="m157.53,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
+                        <path fill="#262626" d="m161.05,62.89v-.61c0-.14.08-.21.21-.21h.17c3.41,0,4.82-2.83,4.82-6.14v-.52c0-.2-.08-.31-.28-.31h-5.1c-.34,0-.52-.21-.52-.55v-1.97c0-.14.08-.21.21-.21h.71c.14,0,.21.08.21.21v1.47h5.25c.37,0,.64.28.64.66v1.55c0,3.64-1.98,6.85-5.81,6.85h-.32c-.14,0-.21-.08-.21-.21Z"/>
+                        <path fill="#262626" d="m170.2,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
+                        <path fill="#262626" d="m176.45,65.5v-1124c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v4.87h1.15c2.13,0,2.79-.86,2.79-2.32v-2.55c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v2.66c0,1.77-.91,3.26-3.62,3.26h-1.47v5.33c0,.14-.08.21-.21.21h-.72c-.14,0-.22-.08-.22-.21Z"/>
+                        <path fill="#262626" d="m185.28,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
+                        <path fill="#262626" d="m187.92,62.89v-.61c0-.14.08-.21.21-.21h2.13l-1.69-7.8c-.03-.14.08-.21.21-.21h.74c.14,0,.18.08.21.21l1.67,7.79c2.03-.18,2.92-1.44,2.92-3.49v-4.3c0-.14.08-.21.21-.21h.72c.14,0,.21.08.21.21v4.75c0,2.4-1.52,4.1-4.15,4.1h-3.21c-.14,0-.21-.08-.21-.21Z"/>
+                        <path fill="#262626" d="m197.71,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
+                        <path fill="#262626" d="m201.1,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
+                    </g>
+                    <rect fill="url(#logo-grad-2)" x="209.98" y="58.3" width="91.7" height=".64"/>
+                    <rect fill="url(#logo-grad-1)" y="58.3" width="91.7" height=".64"/>
+                    <g>
+                        <path fill="#262626" d="m59.83.12c-6.52,0-9.2,4.63-9.2,10.78v21.81c0,6.15,2.68,10.78,9.2,10.78s9.2-4.63,9.2-10.78v-4.87h-2.68v5.06c0,4.57-1.77,7.98-6.46,7.98s-6.46-3.41-6.46-7.98V10.72c0-4.57,1.77-8.04,6.46-8.04s6.46,3.47,6.46,8.04v3.72h2.68v-3.53c0-6.15-2.68-10.78-9.2-10.78Z"/>
+                        <path fill="#262626" d="m91.63,31.38c0-4.63-1.77-7.74-6.15-8.71,4.2-.97,6.15-3.84,6.15-8.83v-3.72c0-6.03-2.62-9.63-9.14-9.63h-8.89v42.65h2.8v-19.07h4.45c4.87,0,7.98,1.58,7.98,7.25v6.7c0,2.32.18,3.84.91,5.12h2.92c-.91-1.4-1.03-3.35-1.03-5.12v-6.64Zm-15.23-9.87V3.05h6.03c4.63,0,6.4,2.74,6.4,7.31v4.02c0,5.73-2.92,7.13-7.92,7.13h-4.51Z"/>
+                        <polygon fill="#262626" points="97.11 43.13 113.93 43.13 113.93 40.58 99.91 40.58 99.91 22.79 111.55 22.79 111.55 20.23 99.91 20.23 99.91 3.05 113.93 3.05 113.93 .49 97.11 .49 97.11 43.13"/>
+                        <path fill="#262626" d="m127.88.49h-9.38v42.65h9.38c6.58,0,9.44-4.33,9.44-10.6V11.09c0-6.28-2.86-10.6-9.44-10.6Zm6.64,32.17c0,4.69-1.95,7.92-6.7,7.92h-6.52V3.05h6.52c4.69,0,6.7,3.23,6.7,7.92v21.69Z"/>
+                        <rect fill="#262626" x="141.95" y=".49" width="2.8" height="42.65"/>
+                        <path fill="#262626" d="m161.69,20.41c4.33-.91,5.61-3.78,5.61-8.41v-2.44c0-5.91-2.32-9.08-8.71-9.08h-8.96v42.65h9.14c6.52,0,9.32-3.72,9.32-9.87v-3.72c0-4.81-1.77-8.22-6.4-9.14Zm-9.26-17.36h6.09c4.57,0,5.97,2.32,5.97,6.76v2.74c0,5.42-2.32,6.76-7.31,6.76h-4.75V3.05Zm12.85,30.16c0,4.75-1.83,7.37-6.52,7.37h-6.34v-18.7h5.3c5.06,0,7.55,1.95,7.55,7.49v3.84Z"/>
+                        <polygon fill="#262626" points="175.46 .49 172.65 .49 172.65 43.13 188.86 43.13 188.86 40.58 175.46 40.58 175.46 .49"/>
+                        <polygon fill="#262626" points="209.88 3.05 209.88 .49 193.06 .49 193.06 43.13 209.88 43.13 209.88 40.58 195.87 40.58 195.87 22.79 207.5 22.79 207.5 20.23 195.87 20.23 195.87 3.05 209.88 3.05"/>
+                    </g>
+                    <path fill="url(#logo-grad-1)" d="m224.32.49h-9.87v42.65h6.7v-16.02h3.17c6.7,0,9.99-3.72,9.99-10.54v-5.54c0-6.82-3.29-10.54-9.99-10.54Zm3.29,16.51c0,3.05-1.16,4.02-3.29,4.02h-3.17V6.58h3.17c2.13,0,3.29.97,3.29,4.02v6.4Z"/>
+                    <polygon fill="url(#logo-grad-1)" points="244.42 .49 237.72 .49 237.72 43.13 255.45 43.13 255.45 37.04 244.42 37.04 244.42 .49"/>
+                    <path fill="url(#logo-grad-1)" d="m271.71,33.39c0,3.05-1.34,4.14-3.47,4.14s-3.47-1.1-3.47-4.14V.49h-6.7v32.47c0,6.82,3.41,10.72,9.99,10.72s9.99-3.9,9.99-10.72V.49h-6.34v32.9Z"/>
+                    <path fill="url(#logo-grad-1)" d="m288.47,10.3c0-3.05,1.22-4.2,3.35-4.2s3.35,1.16,3.35,4.2v1.77h6.34v-1.34c0-6.82-3.35-10.72-9.87-10.72s-9.87,3.9-9.87,10.72c0,12.18,13.1,13.83,13.1,22.6,0,3.05-1.34,4.14-3.47,4.14s-3.47-1.1-3.47-4.14v-3.05h-6.34v2.62c0,6.82,3.41,10.72,9.99,10.72s9.99-3.9,9.99-10.72c0-12.18-13.1-13.83-13.1-22.6Z"/>
+                    <path fill="url(#logo-grad-1)" d="m32.51,38.57h-4c-.99,0-1.79-.8-1.79-1.79v-1.55c-.03-.21-.06-.42-.06-.63v-9.22h-9.22c-.14,0-.28,0-.42-.02h-1.62c-.99,0-1.79-.8-1.79-1.79v-4c0-.99.8-1.79,1.79-1.79h11.26v-9.21c0-.22.02-.42.06-.63v-1.38c0-.99.8-1.79,1.79-1.79h4c.99,0,1.79.8,1.79,1.79v11.22h9.1V6.47c0-3.57-2.9-6.47-6.47-6.47H6.74C3.17,0,.27,2.9.27,6.47v30.2c0,3.57,2.9,6.47,6.47,6.47h30.2c3.57,0,6.47-2.9,6.47-6.47v-11.28h-9.1v11.4c0,.99-.8,1.79-1.79,1.79Z"/>
+                </g>
+            </svg>
         );
-        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'requests', reqId), { offers: updatedOffers });
-    };
 
-    const addExtraOffer = async (reqId, body) => {
-        if (!user) return;
-        const req = requests.find(r => r.id === reqId);
-        if (!req) return;
-        const updatedOffers = [...req.offers, { id: Date.now().toString(), body, status: 'הוגש', approved: 0 }];
-        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'requests', reqId), { offers: updatedOffers });
-        setActiveAction(null);
-    };
+        const BodySelect = ({ value, onChange, placeholder = "בחר גוף מימון" }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            const dropdownRef = useRef(null);
 
-    const setArchiveState = async (reqId, isArchived) => {
-        if (!user) return;
-        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'requests', reqId), { archived: isArchived });
-        setActiveAction(null);
-    };
+            useEffect(() => {
+                const handleClickOutside = (event) => {
+                    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                        setIsOpen(false);
+                    }
+                };
+                document.addEventListener('mousedown', handleClickOutside);
+                return () => document.removeEventListener('mousedown', handleClickOutside);
+            }, []);
 
-    const filtered = useMemo(() => {
-        const isArchive = activeTab === 'archive';
-        return requests.filter(r => r.archived === isArchive && r.client.toLowerCase().includes(search.toLowerCase()));
-    }, [requests, search, activeTab]);
-
-    return (
-        <div className="min-h-screen bg-[#FDFDFD] flex flex-col font-['Assistant',_sans-serif] antialiased" dir="rtl">
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap');
-                .gold-text { color: #d4a55f; }
-                .gold-bg { background: linear-gradient(90deg, #9c7229 0%, #d4a55f 50%, #f6d19c 100%); }
-                .input-field { background-color: #ffffff; border: 1.5px solid #E5E7EB; border-radius: 12px; padding: 12px; font-size: 16px; width: 100%; outline: none; transition: all 0.2s; text-align: right; }
-                .input-field:focus { border-color: #d4a55f; box-shadow: 0 0 0 3px rgba(212, 165, 95, 0.1); }
-                @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-                .animate-slide { animation: slideUp 0.3s ease-out; }
-                * { -webkit-tap-highlight-color: transparent; }
-            `}</style>
-
-            <header className="bg-white px-6 pt-6 pb-4 sticky top-0 z-50 border-b border-gray-100 shadow-sm">
-                <CredibleLogo />
-                <div className="flex bg-gray-100 p-1 rounded-xl mt-5 max-w-md mx-auto">
-                    <button onClick={() => setActiveTab('active')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'active' ? 'bg-white shadow-sm text-black' : 'text-gray-400'}`}>לקוחות פעילים</button>
-                    <button onClick={() => setActiveTab('archive')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'archive' ? 'bg-white shadow-sm text-black' : 'text-gray-400'}`}>ארכיון</button>
+            return (
+                <div className="relative w-full" ref={dropdownRef}>
+                    <button
+                        type="button"
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="input-field flex justify-between items-center bg-white"
+                    >
+                        <span className={value ? 'text-[#262626] font-bold' : 'text-gray-400'}>
+                            {value || placeholder}
+                        </span>
+                        <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    
+                    {isOpen && (
+                        <div className="absolute z-[100] mt-1 w-full bg-white border border-gray-100 rounded-xl shadow-2xl max-h-48 overflow-y-auto animate-slide">
+                            {BODIES.map((body) => (
+                                <button
+                                    key={body}
+                                    type="button"
+                                    onClick={() => {
+                                        onChange(body);
+                                        setIsOpen(false);
+                                    }}
+                                    className={`w-full text-right px-4 py-3 text-sm font-bold transition-colors hover:bg-gray-50 ${value === body ? 'gold-text bg-amber-50/30' : 'text-gray-600'}`}
+                                >
+                                    {body}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            </header>
+            );
+        };
 
-            <main className="p-4 pb-24 max-w-lg mx-auto w-full">
-                <div className="mb-4">
-                    <input 
-                        type="text" placeholder="חיפוש לקוח..."
-                        className="w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-sm outline-none focus:border-[#d4a55f] text-right"
-                        value={search} onChange={(e) => setSearch(e.target.value)}
-                    />
-                </div>
+        function App() {
+            const [activeTab, setActiveTab] = useState('active');
+            const [search, setSearch] = useState('');
+            const [requests, setRequests] = useState([]);
+            const [formData, setFormData] = useState({ client: '', agency: '', amount: '', body: '' });
+            const [activeAction, setActiveAction] = useState(null);
+            const inputRefs = useRef({});
 
-                {activeTab === 'active' && !search && (
-                    <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-50 mb-6 space-y-4 animate-slide">
-                        <div className="grid grid-cols-2 gap-3">
+            // פונקציה להוספת לקוח (לשימוש מקומי או חיבור ל-API)
+            const handleAdd = () => {
+                if (!formData.client || !formData.amount || !formData.body) return;
+                const newReq = {
+                    id: Date.now().toString(),
+                    client: formData.client,
+                    agency: formData.agency || 'כללי',
+                    amount: parseInt(parseNumber(formData.amount)) || 0,
+                    offers: [{ id: 'off-' + Date.now(), body: formData.body, status: 'הוגש', approved: 0 }],
+                    archived: false,
+                    createdAt: new Date()
+                };
+                setRequests([newReq, ...requests]);
+                setFormData({ client: '', agency: '', amount: '', body: '' });
+            };
+
+            const updateOfferStatus = (reqId, offId, newStatus) => {
+                setRequests(prev => prev.map(req => {
+                    if (req.id !== reqId) return req;
+                    const updatedOffers = req.offers.map(off => {
+                        if (off.id === offId) {
+                            const approvedVal = newStatus === 'מאושר מלא' ? req.amount : off.approved;
+                            return { ...off, status: newStatus, approved: approvedVal };
+                        }
+                        return off;
+                    });
+                    return { ...req, offers: updatedOffers };
+                }));
+                setActiveAction(null);
+            };
+
+            const setArchiveState = (reqId, state) => {
+                setRequests(prev => prev.map(r => r.id === reqId ? { ...r, archived: state } : r));
+            };
+
+            const filtered = requests.filter(r => 
+                r.archived === (activeTab === 'archive') && 
+                r.client.toLowerCase().includes(search.toLowerCase())
+            );
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <header className="bg-white px-6 pt-6 pb-4 sticky top-0 z-50 border-b border-gray-100 shadow-sm">
+                        <CredibleLogo />
+                        <div className="flex bg-gray-100 p-1 rounded-xl mt-5 max-w-md mx-auto">
+                            <button onClick={() => setActiveTab('active')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'active' ? 'bg-white shadow-sm text-black' : 'text-gray-400'}`}>לקוחות פעילים</button>
+                            <button onClick={() => setActiveTab('archive')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'archive' ? 'bg-white shadow-sm text-black' : 'text-gray-400'}`}>ארכיון</button>
+                        </div>
+                    </header>
+
+                    <main className="p-4 pb-24 max-w-lg mx-auto w-full">
+                        <div className="mb-4">
                             <input 
-                                placeholder="שם הלקוח" className="input-field" 
-                                value={formData.client} 
-                                onChange={e => setFormData({...formData, client: e.target.value})} 
-                            />
-                            <input 
-                                placeholder="שם סוכנות" className="input-field" 
-                                value={formData.agency} 
-                                onChange={e => setFormData({...formData, agency: e.target.value})} 
+                                type="text" placeholder="חיפוש לקוח..."
+                                className="w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-sm outline-none focus:border-[#d4a55f] text-right"
+                                value={search} onChange={(e) => setSearch(e.target.value)}
                             />
                         </div>
-                        
-                        <div className="grid grid-cols-1 gap-3">
-                            <BodySelect 
-                                value={formData.body} 
-                                onChange={(val) => setFormData({...formData, body: val})} 
-                            />
-                            
-                            <div className="relative">
-                               <input 
-                                    placeholder="סכום מימון מבוקש" 
-                                    className="input-field text-center font-extrabold text-lg gold-text" 
-                                    inputMode="numeric"
-                                    value={formatNumber(formData.amount)} 
-                                    onChange={e => setFormData({...formData, amount: parseNumber(e.target.value)})}
-                                />
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-300 text-sm">₪</div>
+
+                        {activeTab === 'active' && !search && (
+                            <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-50 mb-6 space-y-4 animate-slide">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <input placeholder="שם הלקוח" className="input-field" value={formData.client} onChange={e => setFormData({...formData, client: e.target.value})} />
+                                    <input placeholder="שם סוכנות" className="input-field" value={formData.agency} onChange={e => setFormData({...formData, agency: e.target.value})} />
+                                </div>
+                                <BodySelect value={formData.body} onChange={(val) => setFormData({...formData, body: val})} />
+                                <div className="relative">
+                                    <input 
+                                        placeholder="סכום מימון מבוקש" className="input-field text-center font-extrabold text-lg gold-text" 
+                                        value={formatNumber(formData.amount)} 
+                                        onChange={e => setFormData({...formData, amount: parseNumber(e.target.value)})}
+                                    />
+                                </div>
+                                <button onClick={handleAdd} disabled={!formData.client || !formData.amount || !formData.body} className="w-full gold-bg text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-40">הקם לקוח חדש</button>
                             </div>
-                        </div>
+                        )}
 
-                        <button 
-                            onClick={handleAdd} 
-                            disabled={!formData.client || !formData.amount || !formData.body}
-                            className="w-full gold-bg text-white py-4 rounded-xl font-bold text-md shadow-lg active:scale-[0.98] transition-all disabled:opacity-40"
-                        >
-                            הקם לקוח חדש
-                        </button>
-                    </div>
-                )}
-
-                {loading ? (
-                    <div className="text-center py-20 text-gray-400 font-bold animate-pulse">מעדכן נתונים...</div>
-                ) : (
-                    <div className="space-y-4">
-                        {filtered.length === 0 ? (
-                            <div className="text-center py-10 text-gray-400 text-sm italic">לא נמצאו לקוחות מתאימים</div>
-                        ) : (
-                            filtered.map((req) => (
+                        <div className="space-y-4">
+                            {filtered.map(req => (
                                 <div key={req.id} className="bg-white rounded-[22px] shadow-sm border border-gray-100 overflow-hidden animate-slide">
                                     <div className="px-5 py-2.5 border-b border-gray-50 flex justify-between items-center bg-[#FAFAFA]">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-1.5 h-1.5 rounded-full gold-bg"></div>
-                                            <div>
-                                                <div className="text-[8px] text-gray-400 font-bold mb-0.5 uppercase tracking-wider text-right">לקוח</div>
-                                                <div className="text-lg font-extrabold text-[#262626] leading-tight text-right">{req.client}</div>
-                                            </div>
+                                        <div className="text-right">
+                                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">לקוח</div>
+                                            <div className="text-lg font-extrabold text-[#262626] leading-tight">{req.client}</div>
                                         </div>
                                         <div className="text-left">
-                                            <div className="text-[8px] text-gray-400 font-bold mb-0.5 uppercase tracking-wider text-left">סוכנות</div>
+                                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider text-left">סוכנות</div>
                                             <div className="text-xs font-bold text-gray-600 bg-white px-3 py-1 rounded-full border border-gray-200">{req.agency}</div>
                                         </div>
                                     </div>
 
                                     <div className="p-4 space-y-3">
-                                        {req.offers.map((off, index) => (
-                                            <div key={off.id} className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+                                        {req.offers.map((off, idx) => (
+                                            <div key={off.id} className="bg-white border border-gray-100 rounded-xl p-3">
                                                 <div className="grid grid-cols-[20px_1fr_1fr_1fr_1.3fr] gap-2 items-center text-center">
-                                                    <div className="text-[10px] font-bold text-gray-300 text-right">{index + 1}.</div>
-                                                    <div className="text-[13px] font-extrabold text-[#262626] truncate text-right">{off.body}</div>
-                                                    <div className="text-[13px] font-extrabold text-gray-400">₪{formatNumber(req.amount)}</div>
-                                                    <div>
-                                                        {off.status.includes('מאושר') ? (
-                                                            <input 
-                                                                ref={el => inputRefs.current[off.id] = el}
-                                                                className="w-full text-center text-xs font-bold text-[#9c7229] bg-amber-50/50 border border-amber-100 rounded-md py-1.5 outline-none focus:border-[#d4a55f]"
-                                                                inputMode="numeric" 
-                                                                value={formatNumber(off.approved)}
-                                                                onChange={(e) => updateApprovedAmount(req.id, off.id, e.target.value)}
-                                                            />
-                                                        ) : <span className="text-gray-200 text-xs">-</span>}
-                                                    </div>
+                                                    <span className="text-[10px] font-bold text-gray-300">{idx+1}.</span>
+                                                    <span className="text-[13px] font-extrabold text-right truncate">{off.body}</span>
+                                                    <span className="text-[13px] font-extrabold text-gray-400">₪{formatNumber(req.amount)}</span>
+                                                    <span className="text-[12px] font-bold gold-text">₪{formatNumber(off.approved)}</span>
                                                     <button 
-                                                        onClick={() => setActiveAction({ reqId: req.id, offId: off.id, type: 'status' })}
-                                                        className={`py-2 px-1 rounded-lg text-[10px] font-extrabold border shadow-sm transition-all ${STATUS_OPTIONS.find(o => o.value === off.status)?.color || 'bg-gray-100'}`}
+                                                        onClick={() => setActiveAction({reqId: req.id, offId: off.id})}
+                                                        className={`py-2 rounded-lg text-[10px] font-extrabold border ${STATUS_OPTIONS.find(o => o.value === off.status)?.color}`}
                                                     >
                                                         {off.status}
                                                     </button>
                                                 </div>
-
+                                                
                                                 {activeAction?.offId === off.id && (
-                                                    <div className="mt-3 pt-3 border-t border-gray-50 animate-slide">
-                                                        {activeAction.type === 'status' && (
-                                                            <div className="grid grid-cols-3 gap-1.5">
-                                                                {STATUS_OPTIONS.map(opt => (
-                                                                    <button 
-                                                                        key={opt.value} onClick={() => updateOfferStatus(req.id, off.id, opt.value)}
-                                                                        className={`text-[10px] font-bold p-2.5 border rounded-lg transition-all ${off.status === opt.value ? 'gold-bg text-white border-transparent' : 'bg-gray-50 border-gray-100 text-gray-700'}`}
-                                                                    >
-                                                                        {opt.label}
-                                                                    </button>
-                                                                ))}
-                                                            </div>
-                                                        )}
-
-                                                        {activeAction.type === 'denied' && (
-                                                            <div className="flex gap-2">
-                                                                <button onClick={() => setActiveAction({...activeAction, type: 'newOffer'})} className="flex-1 py-2.5 bg-amber-50 text-[#9c7229] text-[10px] font-bold rounded-lg border border-amber-100">גוף נוסף</button>
-                                                                <button onClick={() => setArchiveState(req.id, true)} className="flex-1 py-2.5 bg-red-600 text-white text-[10px] font-bold rounded-lg">לארכיון</button>
-                                                                <button onClick={() => setActiveAction(null)} className="px-3 py-2 text-gray-400 text-[10px] font-bold underline">ביטול</button>
-                                                            </div>
-                                                        )}
-
-                                                        {activeAction.type === 'meeting' && (
-                                                            <div className="flex gap-2">
-                                                                <button onClick={() => setArchiveState(req.id, true)} className="flex-1 py-2.5 gold-bg text-white text-[10px] font-bold rounded-lg shadow-md">העבר לארכיון</button>
-                                                                <button onClick={() => setActiveAction(null)} className="flex-1 py-2.5 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-lg border border-gray-200">השאר פעיל</button>
-                                                            </div>
-                                                        )}
+                                                    <div className="mt-3 grid grid-cols-3 gap-1.5 pt-3 border-t border-gray-50 animate-slide">
+                                                        {STATUS_OPTIONS.map(opt => (
+                                                            <button 
+                                                                key={opt.value} 
+                                                                onClick={() => updateOfferStatus(req.id, off.id, opt.value)}
+                                                                className="text-[10px] font-bold p-2 border rounded-lg hover:bg-gray-50"
+                                                            >
+                                                                {opt.label}
+                                                            </button>
+                                                        ))}
                                                     </div>
                                                 )}
                                             </div>
                                         ))}
-
-                                        {!req.archived && (
-                                            <div className="mt-2">
-                                                {activeAction?.reqId === req.id && activeAction.type === 'newOffer' ? (
-                                                    <div className="grid grid-cols-1 gap-1.5 p-3 bg-gray-50 rounded-xl border border-gray-100 animate-slide">
-                                                        <BodySelect value="" placeholder="בחר גוף מימון נוסף" onChange={(val) => addExtraOffer(req.id, val)} />
-                                                        <button onClick={() => setActiveAction(null)} className="py-2 text-[10px] text-gray-400 font-bold underline">ביטול</button>
-                                                    </div>
-                                                ) : (
-                                                    <button 
-                                                        onClick={() => setActiveAction({ reqId: req.id, offId: `new-${req.id}`, type: 'newOffer' })}
-                                                        className="w-full py-3.5 bg-white border border-dashed border-gray-200 rounded-xl text-gray-400 text-xs font-bold flex items-center justify-center gap-2"
-                                                    >
-                                                        <span>+ הגשה לגוף מימון נוסף</span>
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )}
                                         
-                                        {req.archived && (
-                                            <button onClick={() => setArchiveState(req.id, false)} className="w-full py-3 bg-green-50 text-green-700 text-[11px] font-bold rounded-xl border border-green-100">
-                                                החזר ללקוחות פעילים
-                                            </button>
-                                        )}
+                                        <button 
+                                            onClick={() => setArchiveState(req.id, !req.archived)}
+                                            className="w-full py-2 text-[10px] text-gray-400 font-bold underline text-center"
+                                        >
+                                            {req.archived ? 'החזר לפעילים' : 'העבר לארכיון'}
+                                        </button>
                                     </div>
                                 </div>
-                            ))
-                        )}
-                    </div>
-                )}
-            </main>
+                            ))}
+                        </div>
+                    </main>
 
-            <footer className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md px-6 py-3 border-t border-gray-100 text-center text-[10px] text-gray-400 font-medium z-40">
-                <div className="max-w-md mx-auto flex justify-between items-center">
-                   <div className="flex items-center gap-1">
-                       <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                       <span>מערכת מחוברת</span>
-                   </div>
-                   <span className="gold-text font-bold">Credible Plus v1.3</span>
-                   <span className="font-bold">UID: {user?.uid?.substring(0,6)}</span>
+                    <footer className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md py-3 border-t border-gray-100 text-center text-[10px] text-gray-400 font-medium z-40">
+                        <span className="gold-text font-bold">Credible Plus v1.3 - GitHub Ready</span>
+                    </footer>
                 </div>
-            </footer>
-        </div>
-    );
-}
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
