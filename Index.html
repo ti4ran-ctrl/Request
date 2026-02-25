@@ -1,0 +1,450 @@
+import React, { useState, useMemo } from 'react';
+
+const CredibleLogo = () => (
+  <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 301.68 65.71" className="h-9 w-auto">
+    <defs>
+      <linearGradient id="linear-gradient" x1="209.98" y1="58.62" x2="301.68" y2="58.62" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stopColor="#f6d19c"/>
+        <stop offset=".36" stopColor="#d4a55f"/>
+        <stop offset=".69" stopColor="#c89644"/>
+        <stop offset="1" stopColor="#9c7229"/>
+      </linearGradient>
+      <linearGradient id="linear-gradient-2" x1="0" y1="58.62" x2="91.7" y2="58.62" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stopColor="#9c7229"/>
+        <stop offset=".31" stopColor="#c89644"/>
+        <stop offset=".64" stopColor="#d4a55f"/>
+        <stop offset="1" stopColor="#f6d19c"/>
+      </linearGradient>
+      <linearGradient id="linear-gradient-3" x1="205.46" y1="34.15" x2="234.12" y2="5.49" href="#linear-gradient-2"/>
+      <linearGradient id="linear-gradient-4" x1="231.49" y1="36.91" x2="256.16" y2="12.23" href="#linear-gradient-2"/>
+      <linearGradient id="linear-gradient-5" x1="253.6" y1="33.89" x2="282.52" y2="4.96" href="#linear-gradient-2"/>
+      <linearGradient id="linear-gradient-6" x1="278.37" y1="35.09" x2="304.84" y2="8.61" href="#linear-gradient-2"/>
+      <linearGradient id="linear-gradient-7" x1="2.17" y1="41.24" x2="41.51" y2="1.89" href="#linear-gradient-2"/>
+    </defs>
+    <g id="Layer_1-2" data-name="Layer 1">
+      <g>
+        <g>
+          <path fill="#262626" d="m100.87,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
+          <path fill="#262626" d="m110.13,62.95l-3.49-5.02c-1.32.77-1.6,2.09-1.6,3.1,0,.91.17,1.38.31,1.84.05.14-.05.23-.18.23h-.68c-.15,0-.21-.09-.26-.23-.14-.43-.31-1.04-.31-1.9,0-1.46.48-3.03,2.1-3.92l-1.92-2.76c-.09-.12-.03-.25.11-.25h.86c.12,0,.18.05.26.15l3.26,4.68c1.4-.71,1.69-1.9,1.69-2.93,0-.74-.15-1.21-.29-1.69-.03-.12.04-.21.18-.21h.69c.14,0,.2.09.25.23.14.41.29,1,.29,1.78,0,1.41-.51,2.86-2.2,3.72l2.15,3.09c.09.12.03.25-.11.25h-.86c-.12,0-.18-.05-.26-.15Z"/>
+          <path fill="#262626" d="m118.85,62.89v-5.7c0-1.44-.43-2.1-2.04-2.1h-3.49c-.14,0-.21-.08-.21-.21v-.61c0-.14.08-.21.21-.21h3.96c1.83,0,2.72,1.06,2.72,2.67v6.17c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
+          <path fill="#262626" d="m122.48,59.06v-4.81c0-.14.08-.21.21-.21h.72c.14,0,.21.08.21.21v3.62h.68c1.49,0,2.06-.52,2.06-1.78v-1.84c0-.14.08-.21.21-.21h.69c.14,0,.21.08.21.21v1.97c0,1.6-.83,2.66-2.99,2.66h-.86c.03,2.47,1.12,3.23,3.29,3.23s3.27-.78,3.27-3.35v-4.5c0-.14.08-.21.21-.21h.72c.14,0,.21.08.21.21v4.81c0,2.84-1.52,4.16-4.42,4.16s-4.44-1.32-4.44-4.16Z"/>
+          <path fill="#262626" d="m139.73,62.95l-3.49-5.02c-1.32.77-1.6,2.09-1.6,3.1,0,.91.17,1.38.31,1.84.05.14-.05.23-.18.23h-.68c-.15,0-.21-.09-.26-.23-.14-.43-.31-1.04-.31-1.9,0-1.46.48-3.03,2.1-3.92l-1.92-2.76c-.09-.12-.03-.25.11-.25h.86c.12,0,.18.05.26.15l3.26,4.68c1.4-.71,1.69-1.9,1.69-2.93,0-.74-.15-1.21-.29-1.69-.03-.12.04-.21.18-.21h.69c.14,0,.2.09.25.23.14.41.29,1,.29,1.78,0,1.41-.51,2.86-2.2,3.72l2.15,3.09c.09.12.03.25-.11.25h-.86c-.12,0-.18-.05-.26-.15Z"/>
+          <path fill="#262626" d="m146.36,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
+          <path fill="#262626" d="m150.2,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
+          <path fill="#262626" d="m154.09,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
+          <path fill="#262626" d="m157.53,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
+          <path fill="#262626" d="m161.05,62.89v-.61c0-.14.08-.21.21-.21h.17c3.41,0,4.82-2.83,4.82-6.14v-.52c0-.2-.08-.31-.28-.31h-5.1c-.34,0-.52-.21-.52-.55v-1.97c0-.14.08-.21.21-.21h.71c.14,0,.21.08.21.21v1.47h5.25c.37,0,.64.28.64.66v1.55c0,3.64-1.98,6.85-5.81,6.85h-.32c-.14,0-.21-.08-.21-.21Z"/>
+          <path fill="#262626" d="m170.2,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
+          <path fill="#262626" d="m176.45,65.5v-11.24c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v4.87h1.15c2.13,0,2.79-.86,2.79-2.32v-2.55c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v2.66c0,1.77-.91,3.26-3.62,3.26h-1.47v5.33c0,.14-.08.21-.21.21h-.72c-.14,0-.22-.08-.22-.21Z"/>
+          <path fill="#262626" d="m185.28,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
+          <path fill="#262626" d="m187.92,62.89v-.61c0-.14.08-.21.21-.21h2.13l-1.69-7.8c-.03-.14.08-.21.21-.21h.74c.14,0,.18.08.21.21l1.67,7.79c2.03-.18,2.92-1.44,2.92-3.49v-4.3c0-.14.08-.21.21-.21h.72c.14,0,.21.08.21.21v4.75c0,2.4-1.52,4.1-4.15,4.1h-3.21c-.14,0-.21-.08-.21-.21Z"/>
+          <path fill="#262626" d="m197.71,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
+          <path fill="#262626" d="m201.1,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
+        </g>
+        <rect fill="url(#linear-gradient)" x="209.98" y="58.3" width="91.7" height=".64"/>
+        <rect fill="url(#linear-gradient-2)" y="58.3" width="91.7" height=".64"/>
+        <g>
+          <path fill="#262626" d="m59.83.12c-6.52,0-9.2,4.63-9.2,10.78v21.81c0,6.15,2.68,10.78,9.2,10.78s9.2-4.63,9.2-10.78v-4.87h-2.68v5.06c0,4.57-1.77,7.98-6.46,7.98s-6.46-3.41-6.46-7.98V10.72c0-4.57,1.77-8.04,6.46-8.04s6.46,3.47,6.46,8.04v3.72h2.68v-3.53c0-6.15-2.68-10.78-9.2-10.78Z"/>
+          <path fill="#262626" d="m91.63,31.38c0-4.63-1.77-7.74-6.15-8.71,4.2-.97,6.15-3.84,6.15-8.83v-3.72c0-6.03-2.62-9.63-9.14-9.63h-8.89v42.65h2.8v-19.07h4.45c4.87,0,7.98,1.58,7.98,7.25v6.7c0,2.32.18,3.84.91,5.12h2.92c-.91-1.4-1.03-3.35-1.03-5.12v-6.64Zm-15.23-9.87V3.05h6.03c4.63,0,6.4,2.74,6.4,7.31v4.02c0,5.73-2.92,7.13-7.92,7.13h-4.51Z"/>
+          <polygon fill="#262626" points="97.11 43.13 113.93 43.13 113.93 40.58 99.91 40.58 99.91 22.79 111.55 22.79 111.55 20.23 99.91 20.23 99.91 3.05 113.93 3.05 113.93 .49 97.11 .49 97.11 43.13"/>
+          <path fill="#262626" d="m127.88.49h-9.38v42.65h9.38c6.58,0,9.44-4.33,9.44-10.6V11.09c0-6.28-2.86-10.6-9.44-10.6Zm6.64,32.17c0,4.69-1.95,7.92-6.7,7.92h-6.52V3.05h6.52c4.69,0,6.7,3.23,6.7,7.92v21.69Z"/>
+          <rect fill="#262626" x="141.95" y=".49" width="2.8" height="42.65"/>
+          <path fill="#262626" d="m161.69,20.41c4.33-.91,5.61-3.78,5.61-8.41v-2.44c0-5.91-2.32-9.08-8.71-9.08h-8.96v42.65h9.14c6.52,0,9.32-3.72,9.32-9.87v-3.72c0-4.81-1.77-8.22-6.4-9.14Zm-9.26-17.36h6.09c4.57,0,5.97,2.32,5.97,6.76v2.74c0,5.42-2.32,6.76-7.31,6.76h-4.75V3.05Zm12.85,30.16c0,4.75-1.83,7.37-6.52,7.37h-6.34v-18.7h5.3c5.06,0,7.55,1.95,7.55,7.49v3.84Z"/>
+          <polygon fill="#262626" points="175.46 .49 172.65 .49 172.65 43.13 188.86 43.13 188.86 40.58 175.46 40.58 175.46 .49"/>
+          <polygon fill="#262626" points="209.88 3.05 209.88 .49 193.06 .49 193.06 43.13 209.88 43.13 209.88 40.58 195.87 40.58 195.87 22.79 207.5 22.79 207.5 20.23 195.87 20.23 195.87 3.05 209.88 3.05"/>
+        </g>
+        <g>
+          <path fill="url(#linear-gradient-3)" d="m224.32.49h-9.87v42.65h6.7v-16.02h3.17c6.7,0,9.99-3.72,9.99-10.54v-5.54c0-6.82-3.29-10.54-9.99-10.54Zm3.29,16.51c0,3.05-1.16,4.02-3.29,4.02h-3.17V6.58h3.17c2.13,0,3.29.97,3.29,4.02v6.4Z"/>
+          <polygon fill="url(#linear-gradient-4)" points="244.42 .49 237.72 .49 237.72 43.13 255.45 43.13 255.45 37.04 244.42 37.04 244.42 .49"/>
+          <path fill="url(#linear-gradient-5)" d="m271.71,33.39c0,3.05-1.34,4.14-3.47,4.14s-3.47-1.1-3.47-4.14V.49h-6.7v32.47c0,6.82,3.41,10.72,9.99,10.72s9.99-3.9,9.99-10.72V.49h-6.34v32.9Z"/>
+          <path fill="url(#linear-gradient-6)" d="m288.47,10.3c0-3.05,1.22-4.2,3.35-4.2s3.35,1.16,3.35,4.2v1.77h6.34v-1.34c0-6.82-3.35-10.72-9.87-10.72s-9.87,3.9-9.87,10.72c0,12.18,13.1,13.83,13.1,22.6,0,3.05-1.34,4.14-3.47,4.14s-3.47-1.1-3.47-4.14v-3.05h-6.34v2.62c0,6.82,3.41,10.72,9.99,10.72s9.99-3.9,9.99-10.72c0-12.18-13.1-13.83-13.1-22.6Z"/>
+        </g>
+        <path fill="url(#linear-gradient-7)" d="m32.51,38.57h-4c-.99,0-1.79-.8-1.79-1.79v-1.55c-.03-.21-.06-.42-.06-.63v-9.22h-9.22c-.14,0-.28,0-.42-.02h-1.62c-.99,0-1.79-.8-1.79-1.79v-4c0-.99.8-1.79,1.79-1.79h11.26v-9.21c0-.22.02-.42.06-.63v-1.38c0-.99.8-1.79,1.79-1.79h4c.99,0,1.79.8,1.79,1.79v11.22h9.1V6.47c0-3.57-2.9-6.47-6.47-6.47H6.74C3.17,0,.27,2.9.27,6.47v30.2c0,3.57,2.9,6.47,6.47,6.47h30.2c3.57,0,6.47-2.9,6.47-6.47v-11.28h-9.1v11.4c0,.99-.8,1.79-1.79,1.79Z"/>
+      </g>
+    </g>
+  </svg>
+);
+
+const STATUS_OPTIONS = [
+  { value: 'הוגש', label: 'הוגש', color: 'bg-blue-50 text-blue-600 border-blue-100' },
+  { value: 'מאושר מלא', label: 'מאושר מלא', color: 'bg-green-50 text-green-600 border-green-100' },
+  { value: 'מאושר חלקי', label: 'מאושר חלקי', color: 'bg-amber-50 text-amber-600 border-amber-100' },
+  { value: 'לא מאושר', label: 'לא מאושר', color: 'bg-red-50 text-red-600 border-red-100' },
+  { value: 'תואם', label: 'תואם פגישה', color: 'bg-indigo-50 text-indigo-600 border-indigo-100' }
+];
+
+const FINANCING_BODIES = ['מקס', 'כאל', 'מימון ישיר', 'איגוד', 'פמה', 'פועלים', 'מזרחי', 'דיסקונט'];
+
+const formatAmount = (val) => {
+  if (val === undefined || val === null || val === '') return '';
+  const num = val.toString().replace(/[^\d]/g, '');
+  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+export default function App() {
+  const [requests, setRequests] = useState([
+      {
+          id: 1,
+          clientName: 'טירן',
+          agency: 'סיגורה',
+          requestedAmount: '100000',
+          offers: [
+              { id: 101, financingBody: 'מקס', status: 'מאושר חלקי', approvedAmount: '20000' },
+              { id: 102, financingBody: 'מימון ישיר', status: 'הוגש', approvedAmount: '' }
+          ]
+      }
+  ]);
+  const [archive, setArchive] = useState([]);
+  const [activeTab, setActiveTab] = useState('main'); 
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const [formData, setFormData] = useState({ clientName: '', agency: '', amount: '', initialBody: '', initialStatus: 'הוגש' });
+  
+  // Modal states
+  const [isArchivePromptOpen, setIsArchivePromptOpen] = useState(false);
+  const [isRejectedMenuOpen, setIsRejectedMenuOpen] = useState(false);
+  const [isPartialAmountModalOpen, setIsPartialAmountModalOpen] = useState(false);
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  
+  const [targetReqId, setTargetReqId] = useState(null);
+  const [targetOfferId, setTargetOfferId] = useState(null);
+  const [partialData, setPartialData] = useState({ reqId: null, offerId: null, amount: '' });
+  const [currentReqId, setCurrentReqId] = useState(null);
+  const [offerData, setOfferData] = useState({ financingBody: '', status: 'הוגש', approvedAmount: '' });
+
+  const filteredList = useMemo(() => {
+    const baseList = activeTab === 'main' ? requests : archive;
+    return baseList.filter(req => (req.clientName || '').toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [requests, archive, activeTab, searchQuery]);
+
+  const handleAddRequest = () => {
+    if (!formData.clientName || !formData.initialBody) return;
+    const cleanAmount = formData.amount.replace(/,/g, '');
+    const newReq = { 
+      clientName: formData.clientName,
+      agency: formData.agency || 'כללי',
+      requestedAmount: cleanAmount,
+      id: Date.now(),
+      offers: [{
+        id: Date.now() + 1,
+        financingBody: formData.initialBody,
+        status: formData.initialStatus,
+        approvedAmount: formData.initialStatus === 'מאושר מלא' ? cleanAmount : ''
+      }]
+    };
+    setRequests([newReq, ...requests]);
+    setFormData({ clientName: '', agency: '', amount: '', initialBody: '', initialStatus: 'הוגש' });
+    if (formData.initialStatus === 'תואם') {
+        setTargetReqId(newReq.id);
+        setIsArchivePromptOpen(true);
+    }
+  };
+
+  const updateOfferStatus = (reqId, offerId, newStatus) => {
+    setTargetReqId(reqId);
+    setTargetOfferId(offerId);
+
+    if (newStatus === 'לא מאושר') {
+        setIsRejectedMenuOpen(true);
+        return; 
+    }
+
+    setRequests(prev => prev.map(req => {
+      if (req.id === reqId) {
+        return {
+          ...req,
+          offers: req.offers.map(off => {
+            if (off.id === offerId) {
+              let approved = off.approvedAmount;
+              if (newStatus === 'מאושר מלא') approved = req.requestedAmount;
+              if (newStatus === 'מאושר חלקי') {
+                  setPartialData({ reqId, offerId, amount: '' });
+                  setIsPartialAmountModalOpen(true);
+              }
+              return { ...off, status: newStatus, approvedAmount: approved };
+            }
+            return off;
+          })
+        };
+      }
+      return req;
+    }));
+
+    if (newStatus === 'תואם') setIsArchivePromptOpen(true);
+  };
+
+  const openNewOfferModal = (reqId) => {
+      const req = requests.find(r => r.id === reqId);
+      setCurrentReqId(reqId);
+      setOfferData({
+          ...offerData,
+          approvedAmount: req ? formatAmount(req.requestedAmount) : ''
+      });
+      setIsOfferModalOpen(true);
+  };
+
+  const handleRejectedChoice = (choice) => {
+      setRequests(prev => prev.map(req => {
+          if (req.id === targetReqId) {
+              return { ...req, offers: req.offers.map(off => off.id === targetOfferId ? { ...off, status: 'לא מאושר', approvedAmount: '' } : off) };
+          }
+          return req;
+      }));
+
+      setIsRejectedMenuOpen(false);
+
+      if (choice === 'archive') {
+          moveToArchive(targetReqId);
+      } else if (choice === 'new_offer') {
+          openNewOfferModal(targetReqId);
+      }
+  };
+
+  const moveToArchive = (idToMove) => {
+      const id = idToMove || targetReqId;
+      const reqToMove = requests.find(r => r.id === id);
+      if (reqToMove) {
+          setArchive([reqToMove, ...archive]);
+          setRequests(requests.filter(r => r.id !== id));
+      }
+      setIsArchivePromptOpen(false);
+      setTargetReqId(null);
+  };
+
+  return (
+    <div dir="rtl" className="fixed inset-0 bg-[#F8F9FA] font-sans text-[#333] flex flex-col overflow-hidden select-none">
+      
+      <style dangerouslySetInnerHTML={{ __html: `
+        html, body { overflow: hidden; position: fixed; width: 100%; height: 100%; touch-action: none; }
+        input, select, textarea { font-size: 16px !important; }
+        .app-content { touch-action: pan-y; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* התאמת גודל הסטטוס */
+        .status-select {
+          font-size: 10px !important; 
+          font-weight: 700 !important;
+          text-align: center;
+          text-align-last: center;
+          padding: 0 4px !important;
+          border-radius: 8px;
+          height: 32px;
+          line-height: 1;
+        }
+
+        .req-number {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 22px;
+          height: 22px;
+          background-color: #262626;
+          color: #f6d19c;
+          border-radius: 50%;
+          font-size: 11px;
+          font-weight: bold;
+          margin-left: 10px;
+        }
+      `}} />
+
+      {/* Header */}
+      <nav className="bg-white px-5 py-3 shadow-sm flex justify-between items-center z-50 shrink-0 border-b border-neutral-100">
+        <CredibleLogo />
+        <div className="flex bg-neutral-100 p-1 rounded-xl">
+          <button onClick={() => setActiveTab('main')} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'main' ? 'bg-white shadow-sm text-black' : 'text-neutral-400'}`}>פעילים</button>
+          <button onClick={() => setActiveTab('archive')} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'archive' ? 'bg-white shadow-sm text-black' : 'text-neutral-400'}`}>ארכיון</button>
+        </div>
+      </nav>
+
+      {/* Search */}
+      <div className="bg-white border-b border-neutral-100 px-5 py-3 z-40 shrink-0">
+        <div className="relative">
+          <input 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="חיפוש לקוח..." 
+            className="w-full pl-4 pr-10 py-2.5 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm outline-none focus:border-amber-400 transition-colors"
+          />
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 text-xs">🔍</span>
+        </div>
+      </div>
+
+      <div className="flex-1 app-content p-4 space-y-5 pb-24">
+        
+        {/* Registration Section */}
+        {activeTab === 'main' && !searchQuery && (
+          <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-neutral-200/50 space-y-4">
+            <h2 className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">רישום בקשה חדשה</h2>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-xl">
+                    <label className="block text-[9px] font-bold text-amber-700 mb-1">שם הלקוח</label>
+                    <input value={formData.clientName} placeholder="שם מלא" className="w-full bg-transparent font-medium outline-none text-sm" onChange={e => setFormData({...formData, clientName: e.target.value})} />
+                </div>
+                <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-xl">
+                    <label className="block text-[9px] font-bold text-amber-700 mb-1">סוכנות</label>
+                    <input value={formData.agency} placeholder="שם סוכנות" className="w-full bg-transparent font-medium outline-none text-sm" onChange={e => setFormData({...formData, agency: e.target.value})} />
+                </div>
+              </div>
+              <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-xl">
+                  <label className="block text-[9px] font-bold text-amber-700 mb-1">סכום המימון המבוקש</label>
+                  <input value={formData.amount} inputMode="numeric" placeholder="₪0" className="w-full bg-transparent font-bold text-xl text-[#262626] outline-none" onChange={e => setFormData({...formData, amount: formatAmount(e.target.value)})} />
+              </div>
+              <div className="flex flex-wrap gap-1.5 py-1">
+                {FINANCING_BODIES.map(body => (
+                  <button key={body} onClick={() => setFormData({...formData, initialBody: body})} className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${formData.initialBody === body ? 'bg-[#262626] border-[#262626] text-[#f6d19c]' : 'bg-white border-neutral-200 text-neutral-500'}`}>{body}</button>
+                ))}
+              </div>
+            </div>
+            <button onClick={handleAddRequest} disabled={!formData.clientName || !formData.initialBody} className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all ${(!formData.clientName || !formData.initialBody) ? 'bg-neutral-100 text-neutral-300' : 'bg-[#262626] text-[#f6d19c] shadow-md'}`}>יצירת בקשה</button>
+          </div>
+        )}
+
+        {/* Requests Feed */}
+        <div className="space-y-4">
+          {filteredList.map((req, index) => (
+            <div key={req.id} className="bg-white rounded-3xl shadow-sm border border-neutral-200/60 overflow-hidden relative">
+              <div className="px-5 py-4 border-b border-neutral-100 flex justify-between items-center bg-neutral-50/30">
+                <div className="flex items-center">
+                  <div className="req-number">{index + 1}</div>
+                  <div className="space-y-0.5">
+                    <span className="text-[9px] font-bold text-neutral-400">לקוח</span>
+                    <div className="text-base font-bold text-[#262626]">{req.clientName}</div>
+                  </div>
+                </div>
+                <div className="text-left space-y-0.5">
+                  <span className="text-[9px] font-bold text-neutral-400">סוכנות</span>
+                  <div className="text-[10px] font-bold text-neutral-600 px-2 py-0.5 bg-white border border-neutral-200 rounded-md">{req.agency}</div>
+                </div>
+              </div>
+
+              <div className="p-4 space-y-3">
+                <div className="grid grid-cols-4 px-1 text-[8px] font-bold text-neutral-400 uppercase">
+                    <div>גוף מימון</div>
+                    <div className="text-center">מבוקש</div>
+                    <div className="text-center">מאושר</div>
+                    <div className="text-center">סטטוס</div>
+                </div>
+
+                {req.offers.map((off, idx) => (
+                  <div key={off.id} className="grid grid-cols-4 gap-1 items-center bg-neutral-50/40 border border-neutral-100 rounded-xl p-2">
+                    <div className="font-bold text-[11px] truncate">{off.financingBody}</div>
+                    <div className="text-center font-medium text-[10px] text-neutral-400">₪{formatAmount(req.requestedAmount)}</div>
+                    <div className="text-center font-bold text-[12px] text-amber-600">₪{formatAmount(off.approvedAmount || 0)}</div>
+                    <div className="relative">
+                      <select 
+                        value={off.status} 
+                        disabled={activeTab === 'archive'}
+                        onChange={(e) => updateOfferStatus(req.id, off.id, e.target.value)}
+                        className={`status-select w-full border appearance-none outline-none transition-colors ${STATUS_OPTIONS.find(o => o.value === off.status)?.color}`}
+                      >
+                        {STATUS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                ))}
+
+                {activeTab === 'main' && (
+                  <button onClick={() => openNewOfferModal(req.id)} className="w-full py-2.5 bg-white border border-dashed border-neutral-300 rounded-xl text-[10px] font-bold text-neutral-500 hover:border-amber-400 transition-all">+ הגשה לגוף נוסף</button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* --- Modals --- */}
+
+      {/* Rejection Handling */}
+      {isRejectedMenuOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-end justify-center animate-fade-in" onClick={() => setIsRejectedMenuOpen(false)}>
+            <div className="bg-white w-full max-w-md rounded-t-[2.5rem] p-8 space-y-5 animate-slide-up shadow-2xl" onClick={e => e.stopPropagation()}>
+                <div className="w-10 h-1 bg-neutral-200 rounded-full mx-auto mb-2"></div>
+                <div className="text-center">
+                    <h3 className="text-lg font-bold text-red-500">הבקשה לא אושרה</h3>
+                    <p className="text-xs text-neutral-400 font-medium">כיצד נרצה להמשיך עם הלקוח?</p>
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                    <button onClick={() => handleRejectedChoice('new_offer')} className="w-full bg-[#262626] text-[#f6d19c] py-4 rounded-xl font-bold text-sm">הגשה לגוף מימון אחר</button>
+                    <button onClick={() => handleRejectedChoice('archive')} className="w-full bg-neutral-100 text-neutral-600 py-4 rounded-xl font-bold text-sm">העברה לארכיון</button>
+                    <button onClick={() => setIsRejectedMenuOpen(false)} className="w-full text-neutral-400 font-bold text-xs py-2">הישאר ברשימה הפעילה</button>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {/* Success/Archive Prompt */}
+      {isArchivePromptOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center p-6 animate-fade-in">
+          <div className="bg-white p-8 rounded-[2.5rem] w-full max-w-xs text-center space-y-5 animate-scale-up shadow-xl">
+            <div className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto text-3xl">✓</div>
+            <div className="space-y-1">
+              <h3 className="text-xl font-bold">מעולה, נקבעה פגישה</h3>
+              <p className="text-xs text-neutral-400 font-medium">האם להעביר את הבקשה לארכיון?</p>
+            </div>
+            <div className="space-y-2 pt-2">
+                <button onClick={() => moveToArchive()} className="w-full bg-[#262626] text-white py-3.5 rounded-xl font-bold text-sm">כן, העבר לארכיון</button>
+                <button onClick={() => setIsArchivePromptOpen(false)} className="w-full text-neutral-400 font-bold text-xs py-2">לא, השאר בטיפול</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Partial Amount Entry */}
+      {isPartialAmountModalOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center p-6 animate-fade-in">
+          <div className="bg-white p-8 rounded-[2.5rem] w-full max-w-xs space-y-5 animate-scale-up shadow-xl border border-amber-50">
+            <div className="text-center space-y-1">
+                <h3 className="text-lg font-bold text-[#333]">אישור חלקי</h3>
+                <p className="text-[9px] text-neutral-400 font-bold uppercase tracking-wide">נא להזין את הסכום שאושר</p>
+            </div>
+            <input autoFocus value={partialData.amount} inputMode="numeric" placeholder="₪0" className="w-full py-4 bg-neutral-50 border border-amber-200 rounded-2xl text-center font-bold text-2xl text-amber-600 outline-none" onChange={e => setPartialData({...partialData, amount: formatAmount(e.target.value)})} />
+            <button onClick={() => {
+                const clean = partialData.amount.replace(/,/g, '');
+                setRequests(prev => prev.map(req => req.id === partialData.reqId ? { ...req, offers: req.offers.map(off => off.id === partialData.offerId ? { ...off, approvedAmount: clean } : off) } : req));
+                setIsPartialAmountModalOpen(false);
+            }} className="w-full bg-[#262626] text-[#f6d19c] py-4 rounded-xl font-bold text-sm shadow-md">עדכון הצעה</button>
+          </div>
+        </div>
+      )}
+
+      {/* New Offer Modal */}
+      {isOfferModalOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-end justify-center animate-fade-in" onClick={() => setIsOfferModalOpen(false)}>
+          <div className="bg-white w-full max-w-md rounded-t-[3rem] p-8 space-y-6 animate-slide-up shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="w-10 h-1 bg-neutral-200 rounded-full mx-auto mb-1"></div>
+            <div className="text-center">
+                <h3 className="text-lg font-bold">הגשה לגוף נוסף</h3>
+                <p className="text-[10px] text-neutral-400 font-medium">בחר את הגוף אליו תרצה להגיש</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {FINANCING_BODIES.map(body => (
+                <button key={body} onClick={() => setOfferData({...offerData, financingBody: body})} className={`py-3 rounded-xl text-xs font-bold border transition-all ${offerData.financingBody === body ? 'bg-[#262626] border-[#262626] text-[#f6d19c] shadow-md' : 'bg-white border-neutral-100 text-neutral-500'}`}>{body}</button>
+              ))}
+            </div>
+            <div className="p-3 bg-neutral-50 border border-neutral-100 rounded-xl">
+                <label className="block text-[9px] font-bold text-neutral-400 mb-1">סכום לבקשה (הועתק מהמקור)</label>
+                <input value={offerData.approvedAmount} inputMode="numeric" className="w-full bg-transparent font-bold text-lg outline-none" onChange={e => setOfferData({...offerData, approvedAmount: formatAmount(e.target.value)})} />
+            </div>
+            <button onClick={() => {
+                if (!offerData.financingBody) return;
+                setRequests(prev => prev.map(req => req.id === currentReqId ? { ...req, offers: [...req.offers, { ...offerData, approvedAmount: '', id: Date.now() }] } : req));
+                setIsOfferModalOpen(false);
+                setOfferData({ financingBody: '', status: 'הוגש', approvedAmount: '' });
+            }} className="w-full py-4 bg-[#262626] text-[#f6d19c] rounded-xl font-bold text-sm shadow-lg">ביצוע הגשה</button>
+          </div>
+        </div>
+      )}
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scale-up { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-slide-up { animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .animate-fade-in { animation: fade-in 0.2s ease-out; }
+        .animate-scale-up { animation: scale-up 0.2s ease-out; }
+      `}} />
+    </div>
+  );
+}
+
