@@ -31,7 +31,6 @@
         const { useState, useEffect, useMemo, useRef } = React;
 
         // --- Firebase Config (Placeholder) ---
-        // הערה: כשאתה מעלה ל-GitHub, וודא שמשתני ה-Firebase מוגדרים או מוזרקים
         const firebaseConfig = {
             apiKey: "",
             authDomain: "",
@@ -166,9 +165,7 @@
             const [requests, setRequests] = useState([]);
             const [formData, setFormData] = useState({ client: '', agency: '', amount: '', body: '' });
             const [activeAction, setActiveAction] = useState(null);
-            const inputRefs = useRef({});
 
-            // פונקציה להוספת לקוח (לשימוש מקומי או חיבור ל-API)
             const handleAdd = () => {
                 if (!formData.client || !formData.amount || !formData.body) return;
                 const newReq = {
@@ -236,7 +233,10 @@
                                 <BodySelect value={formData.body} onChange={(val) => setFormData({...formData, body: val})} />
                                 <div className="relative">
                                     <input 
-                                        placeholder="סכום מימון מבוקש" className="input-field text-center font-extrabold text-lg gold-text" 
+                                        type="tel"
+                                        inputMode="numeric"
+                                        placeholder="סכום מימון מבוקש" 
+                                        className="input-field text-center font-extrabold text-lg gold-text" 
                                         value={formatNumber(formData.amount)} 
                                         onChange={e => setFormData({...formData, amount: parseNumber(e.target.value)})}
                                     />
