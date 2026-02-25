@@ -200,7 +200,7 @@ export default function App() {
     };
 
     const addExtraOffer = async (reqId, body) => {
-        if (!user || !body) return;
+        if (!user) return;
         const req = requests.find(r => r.id === reqId);
         if (!req) return;
         const updatedOffers = [...req.offers, { id: Date.now().toString(), body, status: 'הוגש', approved: 0 }];
@@ -236,15 +236,7 @@ export default function App() {
                 
                 /* Remove blue highlight on touch */
                 * { -webkit-tap-highlight-color: transparent; }
-                input, select { font-size: 16px !important; } /* Extra insurance against iOS zoom */
-                
-                /* Hide default arrow in standard select to use our custom one */
-                select.custom-select {
-                    -webkit-appearance: none;
-                    -moz-appearance: none;
-                    appearance: none;
-                    padding-left: 36px; /* Space for the custom arrow on the left */
-                }
+                input { font-size: 16px !important; } /* Extra insurance against iOS zoom */
             `}</style>
 
             {/* Header */}
@@ -282,26 +274,16 @@ export default function App() {
                             />
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-300 text-sm">₪</div>
                         </div>
-                        
-                        {/* New Dropdown for Funding Body */}
-                        <div className="relative">
-                            <select 
-                                className="input-field custom-select font-bold text-[#262626]"
-                                value={formData.body}
-                                onChange={e => setFormData({...formData, body: e.target.value})}
-                            >
-                                {BODIES.map(b => (
-                                    <option key={b} value={b}>{b}</option>
-                                ))}
-                            </select>
-                            {/* Custom Down Arrow (Positioned left for RTL) */}
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-4 text-gray-400">
-                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                                </svg>
-                            </div>
+                        <div className="flex flex-wrap gap-1.5 justify-center py-1">
+                            {BODIES.map(b => (
+                                <button 
+                                    key={b} onClick={() => setFormData({...formData, body: b})} 
+                                    className={`px-3.5 py-2 rounded-lg text-[11px] font-bold border transition-all ${formData.body === b ? 'gold-bg text-white border-transparent' : 'bg-white text-gray-500 border-gray-200 hover:border-[#d4a55f]'}`}
+                                >
+                                    {b}
+                                </button>
+                            ))}
                         </div>
-
                         <button 
                             onClick={handleAdd} disabled={!formData.client || !formData.amount}
                             className="w-full gold-bg text-white py-4 rounded-xl font-bold text-md shadow-lg active:scale-[0.98] transition-all disabled:opacity-40"
@@ -407,32 +389,13 @@ export default function App() {
                                     {!req.archived && (
                                         <div className="mt-2">
                                             {activeAction?.reqId === req.id && activeAction.type === 'newOffer' ? (
-                                                <div className="flex gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100 animate-slide items-center">
-                                                    <div className="relative flex-1">
-                                                        <select 
-                                                            className="input-field custom-select py-2.5 text-sm font-bold text-[#262626] border-gray-200"
-                                                            defaultValue=""
-                                                            onChange={(e) => {
-                                                                if(e.target.value) {
-                                                                    addExtraOffer(req.id, e.target.value);
-                                                                }
-                                                            }}
-                                                        >
-                                                            <option value="" disabled>בחר גוף מימון נוסף...</option>
-                                                            {BODIES.map(b => (
-                                                                <option key={b} value={b}>{b}</option>
-                                                            ))}
-                                                        </select>
-                                                        {/* Custom Down Arrow */}
-                                                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-3 text-gray-400">
-                                                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                    <button onClick={() => setActiveAction(null)} className="py-2 px-3 text-sm text-gray-400 font-bold underline shrink-0">
-                                                        ביטול
-                                                    </button>
+                                                <div className="grid grid-cols-4 gap-1.5 p-3 bg-gray-50 rounded-xl border border-gray-100 animate-slide">
+                                                    {BODIES.map(b => (
+                                                        <button key={b} onClick={() => addExtraOffer(req.id, b)} className="bg-white border border-gray-200 p-2 rounded-lg text-[10px] font-bold shadow-sm active:scale-95 transition-all hover:border-[#d4a55f]">
+                                                            {b}
+                                                        </button>
+                                                    ))}
+                                                    <button onClick={() => setActiveAction(null)} className="col-span-4 py-2 text-[10px] text-gray-400 font-bold underline">סגור</button>
                                                 </div>
                                             ) : (
                                                 <button 
