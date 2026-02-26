@@ -121,7 +121,7 @@
                             <path fill="#262626" d="m157.53,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
                             <path fill="#262626" d="m161.05,62.89v-.61c0-.14.08-.21.21-.21h.17c3.41,0,4.82-2.83,4.82-6.14v-.52c0-.2-.08-.31-.28-.31h-5.1c-.34,0-.52-.21-.52-.55v-1.97c0-.14.08-.21.21-.21h.71c.14,0,.21.08.21.21v1.47h5.25c.37,0,.64.28.64.66v1.55c0,3.64-1.98,6.85-5.81,6.85h-.32c-.14,0-.21-.08-.21-.21Z"/>
                             <path fill="#262626" d="m170.2,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
-                            <path fill="#262626" d="m176.45,65.5v-11.24c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v4.87h1.15c2.13,0,2.79-.86,2.79-2.32v-2.55c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v2.66c0,1.77-.91,3.26-3.62,3.26h-1.47v5.33c0,.14-.08.21-.21.21h-.72c-.14,0-.22-.08-.22-.21Z"/>
+                            <path fill="#262626" d="m176.45,65.5v-1124c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v4.87h1.15c2.13,0,2.79-.86,2.79-2.32v-2.55c0-.14.08-.21.22-.21h.72c.14,0,.21.08.21.21v2.66c0,1.77-.91,3.26-3.62,3.26h-1.47v5.33c0,.14-.08.21-.21.21h-.72c-.14,0-.22-.08-.22-.21Z"/>
                             <path fill="#262626" d="m185.28,62.89v-7.33c0-.37-.12-.49-.46-.49h-.58c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h1.11c.68,0,1.09.35,1.09,1.03v7.82c0,.14-.08.21-.21.21h-.72c-.14,0-.21-.08-.21-.21Z"/>
                             <path fill="#262626" d="m187.92,62.89v-.61c0-.14.08-.21.21-.21h2.13l-1.69-7.8c-.03-.14.08-.21.21-.21h.74c.14,0,.18.08.21.21l1.67,7.79c2.03-.18,2.92-1.44,2.92-3.49v-4.3c0-.14.08-.21.21-.21h.72c.14,0,.21.08.21.21v4.75c0,2.4-1.52,4.1-4.15,4.1h-3.21c-.14,0-.21-.08-.21-.21Z"/>
                             <path fill="#262626" d="m197.71,59.41v-3.86c0-.37-.12-.49-.46-.49h-.14c-.14,0-.2-.08-.2-.21v-.6c0-.14.06-.21.2-.21h.61c.68,0,1.11.35,1.11,1.03v4.35c0,.14-.08.21-.21.21h-.69c-.14,0-.21-.08-.21-.21Z"/>
@@ -375,23 +375,23 @@
                             {filtered.length === 0 ? (
                                 <div className="text-center py-10 text-gray-400 font-medium">אין לקוחות להצגה</div>
                             ) : filtered.map((req, idx) => (
-                                <div key={req.id} className="bg-white rounded-[22px] shadow-sm border border-gray-100 overflow-hidden animate-slide relative">
-                                    <div className="px-5 py-2.5 border-b border-gray-50 flex justify-between items-center bg-[#FAFAFA]">
+                                <div key={req.id} className="bg-white rounded-[22px] shadow-lg border-[1.5px] border-gray-300 overflow-hidden animate-slide relative">
+                                    <div className="px-5 py-2.5 border-b border-gray-200 flex justify-between items-center bg-[#FAFAFA]">
                                         <div className="flex items-center gap-3">
-                                            <span className="text-gray-300 font-black text-lg">#{idx + 1}</span>
+                                            <span className="text-gray-400 font-black text-lg">#{idx + 1}</span>
                                             <div className="text-right">
-                                                <div className="text-[10px] text-gray-400 font-bold uppercase">לקוח</div>
+                                                <div className="text-[10px] text-gray-500 font-bold uppercase">לקוח</div>
                                                 <div className="text-lg font-extrabold text-[#262626] leading-tight">{req.client}</div>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4">
                                             <div className="flex flex-col gap-1">
-                                                <button onClick={() => moveRequest(requests.indexOf(req), -1)} className="p-1 text-gray-300 hover:text-black"><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/></svg></button>
-                                                <button onClick={() => moveRequest(requests.indexOf(req), 1)} className="p-1 text-gray-300 hover:text-black"><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg></button>
+                                                <button onClick={() => moveRequest(requests.indexOf(req), -1)} className="p-1 text-gray-400 hover:text-black"><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/></svg></button>
+                                                <button onClick={() => moveRequest(requests.indexOf(req), 1)} className="p-1 text-gray-400 hover:text-black"><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg></button>
                                             </div>
                                             <div className="text-left">
-                                                <div className="text-[10px] text-gray-400 font-bold uppercase">סוכנות</div>
-                                                <div className="text-xs font-bold text-gray-600 bg-white px-3 py-1 rounded-full border border-gray-200">{req.agency}</div>
+                                                <div className="text-[10px] text-gray-500 font-bold uppercase">סוכנות</div>
+                                                <div className="text-xs font-bold text-gray-700 bg-white px-3 py-1 rounded-full border border-gray-300">{req.agency}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -401,8 +401,8 @@
                                             <div key={off.id} className="bg-white border border-gray-100 rounded-xl p-3">
                                                 <div className="grid grid-cols-[20px_1fr_1fr_1fr_1.3fr] gap-2 items-center text-center">
                                                     <span className="text-[10px] font-bold text-gray-300">{oIdx+1}.</span>
-                                                    <span className="text-[13px] font-extrabold text-right truncate">{off.body}</span>
-                                                    <span className="text-[13px] font-extrabold text-gray-400">₪{formatNumber(req.amount)}</span>
+                                                    <span className="text-[13px] font-extrabold text-right truncate text-black">{off.body}</span>
+                                                    <span className="text-[13px] font-extrabold text-black">₪{formatNumber(req.amount)}</span>
                                                     
                                                     {off.status === 'מאושר חלקי' ? (
                                                         <input 
